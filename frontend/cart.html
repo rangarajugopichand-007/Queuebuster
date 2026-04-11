@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueBuster — Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f0;color:#111;font-size:14px;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select,textarea{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+:root{
+  --pri:#0f3d2e;--pri-l:#1a5c43;--pri-d:#092b1f;
+  --acc:#f5a623;--acc-d:#d4891a;--acc-l:#fff8ec;
+  --red:#c0392b;--red-l:#fdf5f5;
+  --green:#27ae60;--green-l:#eafaf1;
+  --blue:#2471a3;--blue-l:#eaf4fc;
+  --orange:#e67e22;--orange-l:#fef5ec;
+  --bg:#f0f2f0;--white:#fff;
+  --txt:#111;--txt2:#555;--muted:#8b9196;
+  --brd:#e2e5e2;--brd-l:#f0f0f0;
+  --sh:0 2px 10px rgba(0,0,0,.08);
+  --sh-md:0 4px 20px rgba(0,0,0,.11);
+  --sh-lg:0 10px 40px rgba(0,0,0,.14);
+  --rad:10px;--rad-sm:6px;
+}
+
+/* ── NAV ── */
+.nav{background:var(--pri);position:sticky;top:0;z-index:999;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.nav-inner{display:flex;align-items:center;gap:12px;padding:9px 24px;max-width:1300px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:36px;height:36px;border-radius:10px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:var(--pri)}
+.logo-text{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff}
+.logo-tag{font-size:9px;color:rgba(255,255,255,.5);display:block;line-height:1}
+.nav-spacer{flex:1}
+.nav-user{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.85)}
+.nav-user i{color:var(--acc)}
+.nav-link{color:rgba(255,255,255,.75);font-size:12px;font-weight:600;padding:5px 11px;border:1.5px solid rgba(255,255,255,.2);border-radius:var(--rad-sm);transition:.15s;display:flex;align-items:center;gap:5px}
+.nav-link:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+
+/* Steps bar */
+.steps-wrap{background:var(--pri-l);border-top:1px solid rgba(255,255,255,.08)}
+.steps{display:flex;align-items:stretch;max-width:1300px;margin:0 auto;padding:0 24px}
+.stp{display:flex;align-items:center;gap:8px;padding:10px 18px 10px 0;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.4);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap}
+.stp.done{color:rgba(255,255,255,.75)}
+.stp.active{color:#fff;border-bottom-color:var(--acc)}
+.stp-n{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;background:rgba(255,255,255,.12);flex-shrink:0;transition:.2s}
+.stp.active .stp-n{background:var(--acc);color:var(--pri)}
+.stp.done .stp-n{background:var(--green);color:#fff}
+.stp-arr{color:rgba(255,255,255,.2);padding:0 4px;display:flex;align-items:center;font-size:10px}
+
+/* ── AUTH GUARD ── */
+.auth-guard{max-width:460px;margin:60px auto;padding:0 16px;display:none}
+.auth-guard.on{display:block}
+.ag-card{background:#fff;border-radius:14px;box-shadow:var(--sh-lg);padding:42px 32px;text-align:center}
+.ag-icon{font-size:54px;margin-bottom:14px}
+.ag-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+.ag-sub{font-size:13.5px;color:var(--muted);margin-bottom:26px;line-height:1.6}
+.ag-btn{display:inline-flex;align-items:center;gap:8px;background:var(--pri);color:#fff;font-weight:800;font-size:14px;padding:12px 28px;border-radius:8px;transition:.2s}
+.ag-btn:hover{background:var(--pri-l);transform:translateY(-1px)}
+
+/* ── PAGE ── */
+.page{max-width:1200px;margin:0 auto;padding:22px 20px}
+.two-col{max-width:860px;margin:0 auto}
+.hidden{display:none!important}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-hd{padding:15px 20px 13px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title{font-family:'Sora',sans-serif;font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-body{padding:18px 20px}
+.card-link{font-size:12px;color:#007185;font-weight:600;display:flex;align-items:center;gap:4px;cursor:pointer;transition:.15s}
+.card-link:hover{color:var(--acc-d)}
+
+/* ── OUTLET STRIP ── */
+.outlet-strip{border-radius:var(--rad);overflow:hidden;margin-bottom:16px;height:86px;position:relative}
+.outlet-strip img{width:100%;height:100%;object-fit:cover;filter:brightness(.5)}
+.os-over{position:absolute;inset:0;display:flex;align-items:center;padding:0 20px;background:linear-gradient(to right,rgba(0,0,0,.6),transparent 65%)}
+.os-info{display:flex;align-items:center;gap:13px;color:#fff}
+.os-dot{width:12px;height:12px;border-radius:50%;border:2px solid #fff;flex-shrink:0}
+.os-name{font-family:'Sora',sans-serif;font-size:19px;font-weight:800}
+.os-sub{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:1px}
+.os-back{margin-left:auto;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
+.os-back:hover{background:rgba(255,255,255,.25)}
+
+/* ── CART ITEMS ── */
+.cart-item{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--brd-l);transition:.2s}
+.cart-item:last-child{border-bottom:none}
+.ci-img{width:62px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--bg)}
+.ci-body{flex:1;min-width:0}
+.ci-name{font-size:13.5px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-meta{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+.vdot{width:12px;height:12px;border-radius:3px;border:1.5px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vdot::after{content:'';width:5px;height:5px;border-radius:50%}
+.vdot.v{border-color:#2e7d32}.vdot.v::after{background:#2e7d32}
+.vdot.nv{border-color:#c62828}.vdot.nv::after{background:#c62828}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0}
+.ci-price{font-size:15px;font-weight:800;color:var(--red)}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qb{width:27px;height:27px;border-radius:50%;border:1.5px solid var(--brd);background:#fff;font-size:15px;font-weight:700;color:var(--pri);display:flex;align-items:center;justify-content:center;transition:.15s;cursor:pointer;line-height:1}
+.qb:hover{border-color:var(--pri);background:var(--acc-l)}
+.qn{font-size:14px;font-weight:800;color:var(--pri);min-width:20px;text-align:center}
+.rm-btn{font-size:11px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0;display:flex;align-items:center;gap:3px;transition:.15s}
+.rm-btn:hover{color:var(--red)}
+
+/* Empty cart */
+.empty-cart{text-align:center;padding:44px 20px}
+.empty-cart .ei{font-size:46px;margin-bottom:13px}
+.empty-cart .et{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:5px}
+.empty-cart .es{font-size:13px;color:var(--muted);margin-bottom:20px}
+.go-menu{display:inline-flex;align-items:center;gap:7px;background:var(--acc);color:var(--pri);font-weight:800;padding:10px 22px;border-radius:var(--rad-sm);font-size:13px;transition:.2s}
+.go-menu:hover{background:var(--acc-d)}
+
+/* ── SLOT PICKER ── */
+.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.slot-btn{padding:9px 4px;border-radius:7px;border:1.5px solid var(--brd);background:#fff;font-size:12px;font-weight:700;color:var(--txt2);text-align:center;transition:.15s;cursor:pointer}
+.slot-btn:not(.past):not(.full):not(.sel):hover{border-color:var(--pri);color:var(--pri);background:#f5f8f5}
+.slot-btn.sel{background:var(--pri);color:#fff;border-color:var(--pri)}
+.slot-btn.past,.slot-btn.full{opacity:.38;cursor:not-allowed;pointer-events:none}
+.slot-btn.full{background:#fafafa}
+.sl-time{font-size:13px;font-weight:800;display:block}
+.sl-cap{font-size:9px;margin-top:2px;display:block;font-weight:600;color:var(--muted)}
+.slot-btn.sel .sl-cap{color:rgba(255,255,255,.7)}
+.slot-btn.full .sl-cap{color:var(--red)}
+.slot-loading{grid-column:1/-1;text-align:center;padding:22px;color:var(--muted);font-size:13px}
+.slot-legend{display:flex;gap:16px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.sleg{display:flex;align-items:center;gap:5px}
+.sleg-dot{width:10px;height:10px;border-radius:3px;border:1.5px solid}
+
+/* ── CANCELLATION POLICY ── */
+.cancel-policy{border-radius:var(--rad);overflow:hidden;border:1.5px solid rgba(192,57,43,.2);margin-bottom:16px}
+.cp-head{background:var(--red-l);padding:11px 18px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--red);cursor:pointer;user-select:none}
+.cp-body{background:#fff;padding:14px 18px;display:none}
+.cp-body.open{display:block}
+.cp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.cp-table th{padding:7px 10px;text-align:left;background:#fafafa;border-bottom:1.5px solid var(--brd-l);font-weight:700;color:var(--txt2);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.cp-table td{padding:9px 10px;border-bottom:1px solid var(--brd-l);vertical-align:middle}
+.cp-table tr:last-child td{border-bottom:none}
+.rpill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:10px}
+.rpill.full{background:var(--green-l);color:var(--green)}
+.rpill.half{background:var(--orange-l);color:var(--orange)}
+.rpill.none{background:var(--red-l);color:var(--red)}
+.cp-note{margin-top:10px;font-size:11.5px;color:var(--muted);display:flex;align-items:flex-start;gap:6px;line-height:1.6}
+
+/* ── STUDENT DETAILS ── */
+.user-strip{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#f8f9fa;border-radius:8px;border:1.5px solid var(--brd-l);margin-bottom:15px}
+.u-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--pri-l));display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-size:17px;font-weight:800;flex-shrink:0}
+.u-name{font-size:14px;font-weight:700;margin-bottom:1px}
+.u-id{font-size:11.5px;color:var(--muted)}
+.u-tag{margin-left:auto;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:var(--green-l);color:var(--green);border:1px solid rgba(39,174,96,.2);flex-shrink:0}
+.field-row{display:flex;gap:12px;margin-bottom:13px}
+.field-row:last-child{margin-bottom:0}
+.field{flex:1}
+.flbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.finp{width:100%;height:38px;border:1.5px solid var(--brd);border-radius:var(--rad-sm);padding:0 11px;font-size:13px;color:var(--txt);background:#fff;transition:.15s}
+.finp:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(15,61,46,.08)}
+.finp.ro{background:#f8f8f8;color:var(--txt2);cursor:default}
+
+/* ── ORDER SUMMARY (right col) ── */
+.sum-card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh-md);overflow:hidden}
+.sum-hd{background:linear-gradient(135deg,var(--pri-d),var(--pri-l));padding:15px 18px 13px}
+.sum-hd-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+.sum-outlet-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 11px;border-radius:10px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);margin-top:6px}
+.sum-body{padding:16px 18px}
+
+.slot-strip{background:var(--acc-l);border-radius:8px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:11px;border:1.5px solid rgba(245,166,35,.3)}
+.ss-ico{font-size:22px;flex-shrink:0}
+.ss-lbl{font-size:10px;font-weight:700;color:var(--acc-d);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px}
+.ss-val{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--pri)}
+.ss-chg{margin-left:auto;font-size:11px;color:var(--acc-d);font-weight:700;cursor:pointer;text-decoration:underline;flex-shrink:0}
+
+.sum-items{margin-bottom:12px}
+.sir{display:flex;justify-content:space-between;font-size:13px;color:var(--txt2);padding:5px 0;border-bottom:1px solid var(--brd-l)}
+.sir:last-child{border-bottom:none}
+.sir .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
+.sir .pr{font-weight:700;flex-shrink:0}
+.sum-divider{height:1px;background:var(--brd-l);margin:12px 0}
+
+.promo-row{display:flex;gap:7px;margin-bottom:10px}
+.promo-inp{flex:1;height:37px;border:1.5px solid var(--brd);border-radius:var(--rad-sm);padding:0 11px;font-size:13px;color:var(--txt);text-transform:uppercase;letter-spacing:.5px;transition:.15s}
+.promo-inp:focus{border-color:var(--pri)}
+.promo-inp.ok{border-color:var(--green);background:var(--green-l)}
+.promo-inp.err{border-color:var(--red)}
+.promo-btn{height:37px;padding:0 14px;background:var(--pri);color:#fff;font-size:13px;font-weight:700;border-radius:var(--rad-sm);transition:.15s;white-space:nowrap}
+.promo-btn:hover{background:var(--pri-l)}
+.promo-msg{font-size:11.5px;margin-top:-4px;margin-bottom:8px;display:none;align-items:center;gap:5px}
+.promo-msg.ok{display:flex;color:var(--green)}
+.promo-msg.err{display:flex;color:var(--red)}
+
+.sum-row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--txt2);margin-bottom:8px}
+.sum-row .lbl{display:flex;align-items:center;gap:6px}
+.sum-row .val{font-weight:600}
+.sum-row.disc .val{color:var(--green)}
+.sum-row.total{font-size:17px;font-weight:800;color:var(--txt);padding-top:11px;margin-top:4px;border-top:2px solid var(--brd-l);margin-bottom:0}
+
+
+.sv-text{font-size:12px;color:var(--green);font-weight:600}
+.sv-amt{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--green)}
+
+.terms-row{display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--muted);margin:14px 0;line-height:1.55}
+.terms-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--pri);flex-shrink:0;margin-top:2px;cursor:pointer}
+.terms-row a{color:#007185}
+
+.pay-btn{width:100%;height:50px;background:linear-gradient(135deg,var(--acc),#e8971f);color:var(--pri);font-size:16px;font-weight:800;border-radius:8px;border:none;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;margin-bottom:10px;box-shadow:0 4px 18px rgba(245,166,35,.35)}
+.pay-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 24px rgba(245,166,35,.45)}
+.pay-btn:disabled{background:#ddd;color:#aaa;box-shadow:none;cursor:not-allowed;transform:none}
+.secure-row{display:flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.rzp-badge{display:flex;align-items:center;gap:4px;font-size:10.5px;border:1px solid var(--brd);border-radius:4px;padding:2px 8px;color:var(--muted)}
+.pay-methods{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.pm{font-size:10px;background:#f5f5f5;padding:3px 8px;border-radius:4px;color:var(--muted);font-weight:600}
+
+/* ── PAYMENT OVERLAY ── */
+.pay-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px}
+.pay-ov.on{display:flex}
+.pay-modal{background:#fff;border-radius:16px;width:100%;max-width:380px;padding:34px 28px;text-align:center;box-shadow:var(--sh-lg);animation:pIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:none}}
+.pay-spinner{width:58px;height:58px;border-radius:50%;border:4px solid var(--brd-l);border-top-color:var(--acc);animation:spin 1s linear infinite;margin:0 auto 18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pay-stage-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:5px}
+.pay-stage-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.pay-steps{display:flex;flex-direction:column;gap:8px;text-align:left}
+.psl{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.psl.done{color:var(--green)}.psl.active{color:var(--txt);font-weight:700}
+.psl-ico{width:20px;text-align:center;flex-shrink:0}
+
+
+/* ── TOKEN CARDS (per-item) ── */
+.token-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:4px}
+.token-card{background:linear-gradient(135deg,#092b1f,#1a5c43);border-radius:12px;padding:14px 10px;text-align:center;border:2px solid rgba(245,166,35,.25)}
+.tc-lbl{font-size:9px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.tc-num{font-family:'Sora',sans-serif;font-size:40px;font-weight:800;color:var(--acc);line-height:1;margin:4px 0}
+.tc-item{font-size:10px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+
+/* ── CONFIRM SCREEN ── */
+.confirm-pg{max-width:580px;margin:0 auto;padding:24px 16px;display:none}
+.confirm-pg.on{display:block}
+.confirm-card{background:#fff;border-radius:16px;box-shadow:var(--sh-lg);overflow:hidden}
+.cc-top{background:linear-gradient(135deg,var(--pri-d),var(--pri-l));padding:36px 24px 30px;text-align:center}
+.cc-anim{font-size:68px;margin-bottom:12px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.cc-title{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:4px}
+.cc-sub{font-size:13.5px;color:rgba(255,255,255,.72)}
+.cc-body{padding:24px 22px}
+.token-hero{background:linear-gradient(135deg,var(--pri),var(--pri-l));border-radius:12px;padding:20px;text-align:center;margin-bottom:18px}
+.th-lbl{font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.th-num{font-family:'Sora',sans-serif;font-size:58px;font-weight:800;color:var(--acc);line-height:1;margin:4px 0}
+.th-show{font-size:12px;color:rgba(255,255,255,.6)}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.ccg-cell{background:#f8f9fa;border-radius:8px;padding:11px 13px;border:1px solid var(--brd-l)}
+.ccg-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.ccg-val{font-size:13px;font-weight:700}
+.cc-items-sect{margin-bottom:18px}
+.cc-items-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.cci{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--brd-l)}
+.cci:last-child{border-bottom:none}
+.cci img{width:42px;height:38px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg)}
+.cci-nm{font-size:13px;font-weight:600;flex:1}
+.cci-pr{font-size:13px;font-weight:800;color:var(--red);flex-shrink:0}
+.cc-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding-top:11px;border-top:2px solid var(--brd-l)}
+
+/* Cancellation notice on confirm */
+.cancel-notice{background:var(--orange-l);border-radius:8px;padding:12px 14px;margin:16px 0;border:1px solid rgba(230,126,34,.25);font-size:12.5px;color:var(--txt2);line-height:1.6}
+.cancel-notice strong{color:var(--orange)}
+
+.cc-btns{display:flex;gap:10px;margin-top:18px}
+.ccb{flex:1;height:44px;border-radius:8px;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s;cursor:pointer}
+.ccb.track{background:var(--pri);color:#fff;border:none}
+.ccb.track:hover{background:var(--pri-l)}
+.ccb.do-cancel{background:#fff;color:var(--red);border:2px solid var(--red)}
+.ccb.do-cancel:hover{background:var(--red-l)}
+.ccb:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── CANCEL MODAL ── */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:3000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-back.on{display:flex}
+.cm{background:#fff;border-radius:14px;width:100%;max-width:440px;box-shadow:var(--sh-lg);overflow:hidden;animation:pIn .25s ease}
+.cm-head{padding:16px 20px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between}
+.cm-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:700}
+.cm-close{width:30px;height:30px;border-radius:50%;background:var(--bg);font-size:16px;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.cm-close:hover{background:var(--red-l);color:var(--red)}
+.cm-body{padding:20px}
+.cm-info-box{background:var(--bg);border-radius:8px;padding:14px;margin-bottom:16px;border:1.5px solid var(--brd-l)}
+.cm-info-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.cm-info-row:last-child{margin-bottom:0}
+.cm-info-row .l{color:var(--muted)}.cm-info-row .v{font-weight:700}
+.refund-box{border-radius:8px;padding:16px;margin-bottom:16px;text-align:center;border:2px solid}
+.refund-box.full{background:var(--green-l);border-color:rgba(39,174,96,.3)}
+.refund-box.half{background:var(--orange-l);border-color:rgba(230,126,34,.3)}
+.refund-box.none{background:var(--red-l);border-color:rgba(192,57,43,.2)}
+.rb-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.rb-amt{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;margin-bottom:2px}
+.rb-desc{font-size:12px;opacity:.8}
+.refund-box.full .rb-lbl,.refund-box.full .rb-amt,.refund-box.full .rb-desc{color:var(--green)}
+.refund-box.half .rb-lbl,.refund-box.half .rb-amt,.refund-box.half .rb-desc{color:var(--orange)}
+.refund-box.none .rb-lbl,.refund-box.none .rb-amt,.refund-box.none .rb-desc{color:var(--red)}
+.cm-reason label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.cm-reason select{width:100%;height:40px;border:1.5px solid var(--brd);border-radius:var(--rad-sm);padding:0 11px;font-size:13px;color:var(--txt);background:#fff;transition:.15s}
+.cm-reason select:focus{border-color:var(--pri)}
+.cm-foot{padding:14px 20px 16px;border-top:1px solid var(--brd-l);display:flex;gap:10px;justify-content:flex-end}
+.cm-btn{height:38px;padding:0 20px;border-radius:var(--rad-sm);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;transition:.15s}
+.cm-btn.keep{border:1.5px solid var(--brd);color:var(--txt2);background:#fff}
+.cm-btn.keep:hover{border-color:var(--pri);color:var(--pri)}
+.cm-btn.confirm{background:var(--red);color:#fff;border:none}
+.cm-btn.confirm:hover{background:#a93226}
+
+/* ── TOAST ── */
+#tr{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:#fff;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 22px rgba(0,0,0,.15);border-left:4px solid var(--acc);min-width:240px;animation:tin .3s ease;pointer-events:all}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.toast.s{border-left-color:var(--green)}.toast.e{border-left-color:var(--red)}
+.toast-m{font-size:13px;font-weight:600;flex:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){.two-col{grid-template-columns:1fr}.sum-card{position:static}.slot-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.slot-grid{grid-template-columns:repeat(2,1fr)}.cc-grid{grid-template-columns:1fr}.cc-btns{flex-direction:column}.field-row{flex-direction:column}.steps{padding:0 12px}.stp .stp-lbl{display:none}}
+</style>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // ── EmailJS Config ──────────────────────────────────
+    // Sign up free at https://emailjs.com
+    // Replace these 3 values with your own:
+    const EJS_PUBLIC_KEY    = 'YOUR_PUBLIC_KEY';      // Account → API Keys
+    const EJS_SERVICE_ID    = 'YOUR_SERVICE_ID';      // Email Services tab
+    const EJS_TEMPLATE_ID   = 'YOUR_TEMPLATE_ID';     // Email Templates tab
+    // ────────────────────────────────────────────────────
+    emailjs.init({ publicKey: EJS_PUBLIC_KEY });
+  </script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-mark">Q</div>
+      <div>
+        <span class="logo-text">QueueBuster</span>
+        <span class="logo-tag">Campus Food. Zero Wait.</span>
+      </div>
+    </div>
+    <div class="nav-spacer"></div>
+  </div>
+  <div class="steps-wrap">
+    <div class="steps">
+      <div class="stp done" id="stp1">
+        <span class="stp-n"><i class="fas fa-check" style="font-size:9px"></i></span>
+        <span class="stp-lbl">Menu</span>
+      </div>
+      <span class="stp-arr"><i class="fas fa-chevron-right"></i></span>
+      <div class="stp active" id="stp2">
+        <span class="stp-n">2</span>
+        <span class="stp-lbl">Review &amp; Pay</span>
+      </div>
+      <span class="stp-arr"><i class="fas fa-chevron-right"></i></span>
+      <div class="stp" id="stp3">
+        <span class="stp-n">3</span>
+        <span class="stp-lbl">Confirmed</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH GUARD -->
+<div class="auth-guard" id="authGuard">
+  <div class="ag-card">
+    <div class="ag-icon">🔒</div>
+    <div class="ag-title">Login Required</div>
+    <div class="ag-sub">You need to log in with your College ID to place an order on QueueBuster.</div>
+    <a href="login.html?role=student&redirect=cart.html" class="ag-btn">
+      <i class="fas fa-sign-in-alt"></i> Login to Continue
+    </a>
+  </div>
+</div>
+
+<!-- CHECKOUT PAGE -->
+<div class="page hidden" id="checkoutPage">
+  <div class="two-col">
+
+    <!-- LEFT COL -->
+    <div id="leftCol">
+
+      <!-- Outlet strip -->
+      <div class="outlet-strip">
+        <img id="outletImg" src="" alt="">
+        <div class="os-over">
+          <div class="os-info">
+            <span class="os-dot" id="outletDot"></span>
+            <div>
+              <div class="os-name" id="outletName">—</div>
+              <div class="os-sub" id="outletSub"></div>
+            </div>
+          </div>
+          <button class="os-back" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Change Outlet
+          </button>
+        </div>
+      </div>
+
+      <!-- Cart items -->
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">
+            <i class="fas fa-shopping-basket" style="color:var(--acc)"></i>
+            Your Items
+            <span id="itemCountBadge" style="font-size:12px;font-weight:600;color:var(--muted)"></span>
+          </div>
+          <a class="card-link" id="editCartLink"><i class="fas fa-pen"></i> Edit Cart</a>
+        </div>
+        <div class="card-body" id="cartBody"></div>
+      </div>
+
+
+
+      <!-- Cancellation Policy (collapsed by default) -->
+      <div class="cancel-policy">
+        <div class="cp-head" onclick="togglePolicy()">
+          <i class="fas fa-shield-alt"></i>
+          Cancellation &amp; Refund Policy
+          <i class="fas fa-chevron-down" id="cpChev" style="margin-left:auto;transition:.25s"></i>
+        </div>
+        <div class="cp-body" id="cpBody">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th>Order Stage at Cancellation</th>
+                <th>Refund</th>
+                <th>Credited Within</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pending</strong> — Outlet not yet accepted</td>
+                <td><span class="rpill full"><i class="fas fa-check-circle"></i> 75% Refund</span></td>
+                <td>2 hours</td>
+              </tr>
+              <tr>
+                <td><strong>Preparing</strong> — Kitchen has started cooking</td>
+                <td><span class="rpill half"><i class="fas fa-exclamation-circle"></i> 50% Refund</span></td>
+                <td>2 hours</td>
+              </tr>
+              <tr>
+                <td><strong>Ready</strong> — Food is at the counter</td>
+                <td><span class="rpill none"><i class="fas fa-times-circle"></i> No Refund</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><strong>Collected</strong> — Order picked up</td>
+                <td><span class="rpill none"><i class="fas fa-times-circle"></i> No Refund</span></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="cp-note">
+            <i class="fas fa-info-circle" style="color:var(--blue);flex-shrink:0;margin-top:2px"></i>
+            Refunds go back to the original payment method. If the outlet cancels due to stock-out or closure, you receive a full 100% refund automatically within 2 hours.
+          </div>
+        </div>
+      </div>
+
+      <div class="sum-card" style="position:static;margin-bottom:16px">
+        <div class="sum-hd">
+          <div class="sum-hd-title"><i class="fas fa-receipt"></i> Order Summary</div>
+          <div class="sum-outlet-tag">
+            <span id="sumDot" style="width:7px;height:7px;border-radius:50%;display:inline-block"></span>
+            <span id="sumOutletName">—</span>
+          </div>
+        </div>
+        <div class="sum-body">
+
+          <div class="slot-strip">
+            <div class="ss-ico">🕐</div>
+            <div>
+              <div class="ss-lbl">Pickup Slot</div>
+              <div class="ss-val" id="slotDisplay">Loading...</div>
+            </div>
+          </div>
+
+          <div class="sum-items" id="sumItems"></div>
+
+          <div class="sum-divider"></div>
+
+          <div class="sum-row"><span class="lbl"><i class="fas fa-list" style="font-size:11px;color:var(--muted)"></i> Subtotal</span><span class="val" id="sumSubtotal">₹0</span></div>
+          <div class="sum-row"><span class="lbl"><i class="fas fa-bolt" style="font-size:11px;color:var(--muted)"></i> Platform Fee (2%)</span><span class="val" id="rzpFee">₹0</span></div>
+          <div class="sum-row total"><span>Total Payable</span><span id="sumTotal">₹0</span></div>
+
+
+          <div class="terms-row">
+            <input type="checkbox" id="termsChk" checked>
+            <label for="termsChk">I accept the <a href="#">Terms of Use</a> and the cancellation policy above</label>
+          </div>
+
+          <button class="pay-btn" id="payBtn" onclick="startPayment()">
+            <i class="fas fa-lock"></i> Pay <span id="payAmt">₹0</span> via Razorpay
+          </button>
+          <div class="secure-row">
+            <i class="fas fa-shield-alt" style="color:var(--green)"></i> 100% Secure
+            <span class="rzp-badge"><i class="fas fa-bolt" style="color:var(--blue)"></i> Razorpay</span>
+          </div>
+          <div class="pay-methods">
+            <span class="pm" style="background:var(--acc-l);color:var(--acc-d);font-weight:700;border:1px solid rgba(245,166,35,.3)">⚡ UPI via Razorpay</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Special Instructions (compact, replaces Your Details card) -->
+      <div class="card" style="margin-bottom:0">
+        <div class="card-body" style="padding:14px 18px">
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <div class="flbl">Phone (optional)</div>
+              <input class="finp" id="fPhone" type="tel" placeholder="SMS when order is ready" maxlength="10">
+            </div>
+            <div style="flex:2;min-width:200px">
+              <div class="flbl">Special Instructions</div>
+              <input class="finp" id="fNotes" placeholder="e.g. Less spicy, no onion">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>
+
+<!-- ORDER CONFIRMED SCREEN -->
+<div class="confirm-pg" id="confirmPg">
+  <div class="confirm-card">
+    <div class="cc-top">
+      <div class="cc-anim">🎉</div>
+      <div class="cc-title">Order Confirmed!</div>
+      <div class="cc-sub">Payment successful — order sent to kitchen</div>
+    </div>
+    <div class="cc-body">
+      <div style="margin-bottom:18px">
+        <div style="font-size:10px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:10px">
+          Your Token Numbers — Show at Counter
+        </div>
+        <div class="token-cards" id="tokenCardsGrid"></div>
+        <div style="text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-top:8px">Each item has a unique token. Show the right token for each item.</div>
+      </div>
+      <div class="cc-grid" id="confGrid"></div>
+      <div class="cancel-notice">
+        <strong>⚠️ Cancellation window is open.</strong>
+        You can cancel now for a <strong>75% refund</strong> while the order is still pending.
+        Once the outlet starts preparing, only 50% will be refunded (within 2 hours).
+      </div>
+      <div class="cc-items-sect">
+        <div class="cc-items-lbl">Items Ordered</div>
+        <div id="confItems"></div>
+        <div class="cc-total-row" id="confTotalRow"></div>
+      </div>
+      <!-- Email confirmation status -->
+      <div id="emailStatus" style="margin:14px 0 10px;padding:11px 16px;border-radius:8px;background:#eafaf1;border:1.5px solid #a9dfbf;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#1e8449">
+        <i class="fas fa-circle-notch fa-spin" style="color:#27ae60"></i>
+        <span id="emailStatusText">Sending order confirmation to your email…</span>
+      </div>
+      <div class="cc-btns" style="margin-top:8px">
+        <button class="ccb do-cancel" id="cancelOrderBtn" onclick="openCancelModal()">
+          <i class="fas fa-times-circle"></i> Cancel Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT OVERLAY -->
+<div class="pay-ov" id="payOv">
+  <div class="pay-modal">
+    <div class="pay-spinner"></div>
+    <div class="pay-stage-title" id="pTitle">Processing Payment</div>
+    <div class="pay-stage-sub" id="pSub">Connecting to Razorpay…</div>
+    <div class="pay-steps">
+      <div class="psl active" id="psl1"><span class="psl-ico"><i class="fas fa-circle-notch fa-spin"></i></span> Connecting to Razorpay</div>
+      <div class="psl" id="psl2"><span class="psl-ico"><i class="fas fa-clock"></i></span> Verifying payment</div>
+      <div class="psl" id="psl3"><span class="psl-ico"><i class="fas fa-clock"></i></span> Confirming with outlet</div>
+      <div class="psl" id="psl4"><span class="psl-ico"><i class="fas fa-clock"></i></span> Generating token</div>
+    </div>
+  </div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div class="modal-back" id="cancelModalBack">
+  <div class="cm">
+    <div class="cm-head">
+      <div class="cm-title"><i class="fas fa-times-circle" style="color:var(--red);margin-right:7px"></i>Cancel Order</div>
+      <div class="cm-close" onclick="closeCancelModal()"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-info-box">
+        <div class="cm-info-row"><span class="l">Order ID</span><span class="v" id="cmOrderId">—</span></div>
+        <div class="cm-info-row"><span class="l">Current Status</span><span class="v" id="cmStatus">—</span></div>
+        <div class="cm-info-row"><span class="l">Amount Paid</span><span class="v" id="cmPaid">—</span></div>
+      </div>
+      <div class="refund-box full" id="refundBox">
+        <div class="rb-lbl">Refund Amount</div>
+        <div class="rb-amt" id="refundAmt">₹0</div>
+        <div class="rb-desc" id="refundDesc">—</div>
+      </div>
+      <div class="cm-reason">
+        <label>Reason for Cancellation</label>
+        <select id="cancelReason">
+          <option value="">Select a reason</option>
+          <option value="changed_mind">Changed my mind</option>
+          <option value="wrong_order">Ordered by mistake</option>
+          <option value="long_wait">Wait time too long</option>
+          <option value="going_elsewhere">Going somewhere else</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="cm-foot">
+      <button class="cm-btn keep" onclick="closeCancelModal()"><i class="fas fa-arrow-left"></i> Keep Order</button>
+      <button class="cm-btn confirm" onclick="confirmCancel()"><i class="fas fa-times-circle"></i> Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="tr"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   ⚙️  CONFIG
+   DEMO_MODE = true  → uses local mock data (no server needed)
+   DEMO_MODE = false → calls real Node.js backend at API_BASE
+
+   When backend is ready:
+     1. Set DEMO_MODE = false
+     2. Set API_BASE to your server URL
+     3. All fetch() calls below are already wired up
+════════════════════════════════════════════════════ */
+const DEMO_MODE = false;
+const API_BASE  = 'http://localhost:3000';
+
+/* ════════════════════════════════════════════════════
+   OUTLET REFERENCE TABLE
+   Mirrors the `outlets` table in MySQL
+════════════════════════════════════════════════════ */
+const OUTLET_MAP = {
+  1:{ name:'Canteen 1',   color:'#e74c3c', img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&h=172&fit=crop', hours:'8 AM – 5 PM' },
+  2:{ name:'Canteen 2',   color:'#2980b9', img:'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=900&h=172&fit=crop', hours:'9 AM – 5 PM' },
+  3:{ name:'Cafeteria',   color:'#8e44ad', img:'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=900&h=172&fit=crop', hours:'8 AM – 6 PM' },
+  4:{ name:'Juice Point', color:'#27ae60', img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=900&h=172&fit=crop', hours:'8 AM – 5:30 PM' },
+};
+
+/* ════════════════════════════════════════════════════
+   DEMO PROMO CODES
+   In production: validated via POST /api/promo/validate
+════════════════════════════════════════════════════ */
+/* Demo full slots (backend provides this in real mode) */
+const DEMO_FULL_SLOTS = new Set(['10:10','10:20','12:30']);
+
+/* ════════════════════════════════════════════════════
+   APP STATE
+════════════════════════════════════════════════════ */
+const S = {
+  user:          null,   // decoded from JWT in localStorage
+  cart:          [],     // loaded from localStorage key 'qb_cart'
+  outletId:      1,
+  selectedSlot:  null,
+  discount:      0,
+  promoCode:     null,
+  promoApplied:  false,
+  confirmedOrder:null,   // set after successful payment
+};
+
+/* ════════════════════════════════════════════════════
+   BOOT — runs immediately on page load
+════════════════════════════════════════════════════ */
+async function boot() {
+  // ── 1. Check JWT auth ──
+  // In DEMO_MODE we use a mock user so you can test without logging in.
+  // In live mode: token is set by login.html after OTP verification.
+  const token = localStorage.getItem('qb_token');
+  let user    = null;
+
+  if (DEMO_MODE) {
+    // Mock logged-in student for demo
+    user = {
+      id:         42,
+      name:       'Riya Sharma',
+      college_id: '21CS042',
+      email:      'riya@college.edu',
+      department: 'Computer Science',
+      role:       'student',
+    };
+    localStorage.setItem('qb_token', 'demo_token_42');
+    localStorage.setItem('qb_user',  JSON.stringify(user));
+  } else {
+    if (!token) {
+      // Not logged in → show auth guard
+      document.getElementById('authGuard').classList.add('on');
+      return;
+    }
+    user = JSON.parse(localStorage.getItem('qb_user') || 'null');
+    if (!user) {
+      document.getElementById('authGuard').classList.add('on');
+      return;
+    }
+  }
+
+  S.user = user;
+
+  // ── 2. Fill user info in UI ──
+  // navUser element removed
+  // User details auto-fill (fields removed)
+
+  // ── 3. Load cart from localStorage (saved by outlet.html before redirect) ──
+  const raw  = localStorage.getItem('qb_cart');
+  S.cart     = raw ? JSON.parse(raw) : [];
+  S.outletId = S.cart.length > 0 ? S.cart[0].outlet_id : 1;
+
+  // ── 4. Setup outlet UI ──
+  const O = OUTLET_MAP[S.outletId] || OUTLET_MAP[1];
+  document.getElementById('outletImg').src               = O.img;
+  document.getElementById('outletName').textContent      = O.name;
+  document.getElementById('outletSub').textContent       = `Open · ${O.hours}`;
+  document.getElementById('outletDot').style.background  = O.color;
+  document.getElementById('sumDot').style.background     = O.color;
+  document.getElementById('sumOutletName').textContent   = O.name;
+  document.getElementById('editCartLink').href           = `outlet.html?id=${S.outletId}`;
+
+  // ── 5. Show page ──
+  document.getElementById('checkoutPage').classList.remove('hidden');
+
+  // ── 6. Read slot from URL and display it ──
+  const urlParams = new URLSearchParams(window.location.search);
+  const slotRaw   = urlParams.get('slot') || '';
+  if (slotRaw) {
+    S.selectedSlot = slotRaw;
+    const [hh, mm] = slotRaw.split(':').map(Number);
+    const dh  = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+    const suf = hh < 12 ? 'AM' : 'PM';
+    document.getElementById('slotDisplay').textContent =
+      `${dh}:${String(mm).padStart(2,'0')} ${suf}`;
+  } else {
+    document.getElementById('slotDisplay').textContent = 'Not selected';
+  }
+
+  // ── 7. Render ──
+  renderCart();
+  updateSummary();
+}
+
+/* ════════════════════════════════════════════════════
+   CART RENDER
+════════════════════════════════════════════════════ */
+function renderCart() {
+  const body  = document.getElementById('cartBody');
+  const badge = document.getElementById('itemCountBadge');
+
+  if (!S.cart.length) {
+    body.innerHTML = `
+      <div class="empty-cart">
+        <div class="ei">🛒</div>
+        <div class="et">Your cart is empty</div>
+        <div class="es">Go back and add items from the menu</div>
+        <a href="outlet.html?id=1" class="go-menu"><i class="fas fa-utensils"></i> Browse Menu</a>
+      </div>`;
+    document.getElementById('payBtn').disabled = true;
+    badge.textContent = '';
+    return;
+  }
+
+  const totalQty = S.cart.reduce((s, i) => s + i.qty, 0);
+  badge.textContent = `(${totalQty} item${totalQty > 1 ? 's' : ''})`;
+  document.getElementById('payBtn').disabled = false;
+
+  body.innerHTML = S.cart.map(item => `
+    <div class="cart-item" id="ci-${item.id}">
+      <img class="ci-img" src="${item.img}" alt="${item.name}" loading="lazy">
+      <div class="ci-body">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-meta">
+          <div class="vdot ${item.is_veg ? 'v' : 'nv'}"></div>
+          <span>${item.category}</span>
+          <span>·</span>
+          <span>₹${item.price} each</span>
+        </div>
+      </div>
+      <div class="ci-right">
+        <span class="ci-price" id="cip-${item.id}">₹${item.price * item.qty}</span>
+        <div class="qty-ctrl">
+          <button class="qb" onclick="changeQty(${item.id}, -1)">−</button>
+          <span class="qn" id="qn-${item.id}">${item.qty}</span>
+          <button class="qb" onclick="changeQty(${item.id},  1)">+</button>
+        </div>
+        <button class="rm-btn" onclick="removeItem(${item.id})">
+          <i class="fas fa-trash-alt" style="font-size:10px"></i> Remove
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function changeQty(id, d) {
+  const item = S.cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) { removeItem(id); return; }
+  document.getElementById(`qn-${id}`).textContent  = item.qty;
+  document.getElementById(`cip-${id}`).textContent = `₹${item.price * item.qty}`;
+  saveCart();
+  updateSummary();
+}
+
+function removeItem(id) {
+  S.cart = S.cart.filter(i => i.id !== id);
+  saveCart();
+  renderCart();
+  updateSummary();
+  toast('Item removed', '');
+}
+
+function saveCart() {
+  localStorage.setItem('qb_cart', JSON.stringify(S.cart));
+}
+
+/* ════════════════════════════════════════════════════
+   SLOTS
+   LIVE:  GET /api/slots/:outletId
+          Headers: Authorization: Bearer <token>
+          Response: { slots: [{ time, is_past, is_full, booked, capacity }] }
+
+   DEMO:  Generated from current time forward until outlet close
+════════════════════════════════════════════════════ */
+async function loadSlots() {
+  if (DEMO_MODE) {
+    renderSlots(buildDemoSlots());
+    return;
+  }
+  try {
+    const res  = await apiFetch(`/api/slots/${S.outletId}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    renderSlots(data.slots);
+  } catch (e) {
+    document.getElementById('slotGrid').innerHTML =
+      `<div class="slot-loading" style="color:var(--red)">
+         <i class="fas fa-exclamation-circle"></i> Could not load slots — ${e.message}
+       </div>`;
+  }
+}
+
+function buildDemoSlots() {
+  const slots = [];
+  const now   = new Date();
+  let h = now.getHours(), m = now.getMinutes() + 5;
+  m = Math.ceil(m / 10) * 10;
+  if (m >= 60) { h++; m = 0; }
+  const sh = h, sm = m;
+  let gh = 8, gm = 0;
+  while (gh < 17) {
+    const hh  = String(gh).padStart(2, '0');
+    const mm  = String(gm).padStart(2, '0');
+    const key = `${hh}:${mm}`;
+    slots.push({
+      time:    key,
+      is_past: gh < sh || (gh === sh && gm < sm),
+      is_full: DEMO_FULL_SLOTS.has(key),
+    });
+    gm += 10; if (gm >= 60) { gh++; gm = 0; }
+  }
+  return slots;
+}
+
+function renderSlots(slots) {
+  document.getElementById('slotGrid').innerHTML = slots.map(s => {
+    const [hh, mm] = s.time.split(':').map(Number);
+    const dh   = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+    const suf  = hh < 12 ? 'AM' : 'PM';
+    const lbl  = `${dh}:${String(mm).padStart(2, '0')} ${suf}`;
+    const slotD = new Date(); slotD.setHours(hh, mm, 0, 0);
+    const isPast = s.is_past || slotD < new Date();
+    const cls  = isPast ? 'past' : s.is_full ? 'full' : '';
+    const cap  = s.is_full ? 'Full' : isPast ? 'Passed' : 'Available';
+    return `<button
+      class="slot-btn ${cls}"
+      id="slot-${s.time.replace(':', '-')}"
+      onclick="selectSlot('${s.time}', this)"
+      ${isPast || s.is_full ? 'disabled' : ''}
+    >
+      <span class="sl-time">${lbl}</span>
+      <span class="sl-cap">${cap}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectSlot(time, el) {
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  S.selectedSlot = time;
+  const [hh, mm] = time.split(':').map(Number);
+  const dh  = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+  const suf = hh < 12 ? 'AM' : 'PM';
+  const lbl = `${dh}:${String(mm).padStart(2, '0')} ${suf}`;
+  document.getElementById('slotDisplay').textContent = lbl;
+  toast(`Pickup slot: ${lbl}`, 's');
+}
+
+function scrollToSlots() {
+  document.getElementById('slotCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ════════════════════════════════════════════════════
+   CANCELLATION POLICY TOGGLE
+════════════════════════════════════════════════════ */
+function togglePolicy() {
+  const body = document.getElementById('cpBody');
+  const chev = document.getElementById('cpChev');
+  const open = body.classList.toggle('open');
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+
+/* ════════════════════════════════════════════════════
+   ORDER SUMMARY
+════════════════════════════════════════════════════ */
+function updateSummary() {
+  const sub    = S.cart.reduce((t, i) => t + i.price * i.qty, 0);
+  const rzpFee = Math.round(sub * 0.02);
+  const total  = sub + rzpFee;
+
+  document.getElementById('sumItems').innerHTML = S.cart.map(i =>
+    `<div class="sir">
+       <span class="nm">${i.name} <span style="color:var(--muted)">×${i.qty}</span></span>
+       <span class="pr">₹${i.price * i.qty}</span>
+     </div>`).join('');
+
+  document.getElementById('sumSubtotal').textContent = `₹${sub}`;
+  document.getElementById('rzpFee').textContent      = `₹${rzpFee}`;
+  document.getElementById('sumTotal').textContent    = `₹${total}`;
+  document.getElementById('payAmt').textContent      = `₹${total}`;
+
+}
+
+/* ════════════════════════════════════════════════════
+   PAYMENT FLOW
+
+   LIVE STEP 1 — POST /api/payment/create-order
+     Body: { amount_paise, outlet_id, cart, slot, promo, notes, phone }
+     Response: { razorpay_order_id, amount, currency, key_id }
+
+   LIVE STEP 2 — Razorpay popup (handled by SDK)
+
+   LIVE STEP 3 — POST /api/payment/verify
+     Body: { razorpay_payment_id, razorpay_order_id, razorpay_signature,
+             slot, outlet_id, cart, total, notes, promo }
+     Response: { success, order_id, token_number }
+
+   Backend must:
+     - Verify HMAC signature
+     - INSERT into orders + order_items
+     - Deduct inventory
+     - Book the slot
+     - Return token_number (daily sequential per outlet)
+════════════════════════════════════════════════════ */
+async function startPayment() {
+  if (!S.cart.length)       { toast('Your cart is empty', 'e'); return; }
+  if (!S.selectedSlot)      { toast('Please select a pickup time slot', 'e'); scrollToSlots(); return; }
+  if (!document.getElementById('termsChk').checked)
+                             { toast('Please accept the terms to continue', 'e'); return; }
+
+  document.getElementById('payBtn').disabled    = true;
+  document.getElementById('payBtn').innerHTML   = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+
+  if (DEMO_MODE) { runDemoPaymentAnimation(); return; }
+
+  /* ── LIVE FLOW ── */
+  const _sub = S.cart.reduce((t, i) => t + i.price * i.qty, 0);
+  const total = _sub + Math.round(_sub * 0.02);
+  try {
+    const res  = await apiFetch('/api/payment/create-order', 'POST', {
+      amount_paise: total * 100,
+      outlet_id:    S.outletId,
+      cart:         S.cart,
+      slot:         S.selectedSlot,
+      notes:        document.getElementById('fNotes').value,
+      phone:        document.getElementById('fPhone').value,
+    });
+    const { razorpay_order_id, amount, currency, key_id } = await res.json();
+
+    const rzp = new Razorpay({
+      key:         key_id,
+      amount,
+      currency,
+      order_id:    razorpay_order_id,
+      name:        'QueueBuster',
+      description: `Order from ${OUTLET_MAP[S.outletId]?.name}`,
+      prefill:     { name: S.user.name, email: S.user.email, contact: document.getElementById('fPhone').value },
+      handler: async (rzpResp) => {
+        await verifyAndPlace(rzpResp, total);
+      },
+      modal: {
+        ondismiss: () => resetPayBtn(total),
+      },
+    });
+    rzp.open();
+  } catch (e) {
+    toast('Payment initiation failed: ' + e.message, 'e');
+    resetPayBtn(total);
+  }
+}
+
+async function verifyAndPlace(rzpResp, total) {
+  document.getElementById('payOv').classList.add('on');
+  try {
+    const res  = await apiFetch('/api/payment/verify', 'POST', {
+      razorpay_payment_id:  rzpResp.razorpay_payment_id,
+      razorpay_order_id:    rzpResp.razorpay_order_id,
+      razorpay_signature:   rzpResp.razorpay_signature,
+      slot:      S.selectedSlot,
+      outlet_id: S.outletId,
+      cart:      S.cart,
+      total,
+      notes:     document.getElementById('fNotes').value,
+      promo:     S.promoCode,
+    });
+    const data = await res.json();
+    document.getElementById('payOv').classList.remove('on');
+    if (data.success) {
+      // Backend returns token_numbers array (or single token_number for backward compat)
+      const tokenArr = S.cart.map((item, idx) => ({
+        itemId: item.id, itemName: item.name,
+        token: Array.isArray(data.token_numbers)
+          ? (data.token_numbers[idx]?.token || data.token_numbers[idx] || '-')
+          : (data.token_number + idx)
+      }));
+      S.confirmedOrder = { ...data, tokens: tokenArr, total, status: 'pending' };
+      localStorage.removeItem('qb_cart');
+      showConfirmScreen(data.order_id, tokenArr, total);
+    } else {
+      toast(data.message || 'Payment verification failed', 'e');
+      resetPayBtn(total);
+    }
+  } catch (e) {
+    document.getElementById('payOv').classList.remove('on');
+    toast('Verification error — check Track Order page', 'e');
+    resetPayBtn(total);
+  }
+}
+
+function resetPayBtn(total) {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = false;
+  btn.innerHTML = `<i class="fas fa-lock"></i> Pay ₹${total} via Razorpay`;
+}
+
+/* ════════════════════════════════════════════════════
+   DEMO PAYMENT ANIMATION
+════════════════════════════════════════════════════ */
+function runDemoPaymentAnimation() {
+  document.getElementById('payOv').classList.add('on');
+  const stages = [
+    { id:'psl1', title:'Connecting to Razorpay',  sub:'Opening secure gateway…',           ms:1100 },
+    { id:'psl2', title:'Verifying Payment',         sub:'Waiting for confirmation…',         ms:1800 },
+    { id:'psl3', title:'Confirming with Outlet',    sub:'Sending order to kitchen…',         ms:1300 },
+    { id:'psl4', title:'Generating Token',          sub:'Almost done…',                      ms:900  },
+  ];
+  let idx = 0;
+  (function next() {
+    if (idx >= stages.length) {
+      const _s     = S.cart.reduce((t, i) => t + i.price * i.qty, 0);
+      const total  = _s + Math.round(_s * 0.02);
+      // Generate one unique token per item
+      const usedTokens = new Set();
+      const tokens = S.cart.map(item => {
+        let tok;
+        do { tok = Math.floor(Math.random() * 90) + 10; } while (usedTokens.has(tok));
+        usedTokens.add(tok);
+        return { itemId: item.id, itemName: item.name, token: tok };
+      });
+      const oid    = `QB-${new Date().toISOString().slice(2,10).replace(/-/g,'')}-${String(Math.floor(Math.random()*900)+100)}`;
+      S.confirmedOrder = { order_id: oid, tokens, total, status: 'pending' };
+      document.getElementById('payOv').classList.remove('on');
+      localStorage.removeItem('qb_cart');
+      showConfirmScreen(oid, tokens, total);
+      return;
+    }
+    const s = stages[idx];
+    if (idx > 0) {
+      const prev = document.getElementById(stages[idx - 1].id);
+      prev.classList.remove('active');
+      prev.classList.add('done');
+      prev.querySelector('.psl-ico').innerHTML = '<i class="fas fa-check-circle" style="color:var(--green)"></i>';
+    }
+    const cur = document.getElementById(s.id);
+    cur.classList.add('active');
+    cur.querySelector('.psl-ico').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+    document.getElementById('pTitle').textContent = s.title;
+    document.getElementById('pSub').textContent   = s.sub;
+    idx++;
+    setTimeout(next, s.ms);
+  })();
+}
+
+/* ════════════════════════════════════════════════════
+   CONFIRM SCREEN
+════════════════════════════════════════════════════ */
+function showConfirmScreen(orderId, tokens, total) {
+  document.getElementById('checkoutPage').classList.add('hidden');
+  document.getElementById('confirmPg').classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Stepper update
+  const s2 = document.getElementById('stp2');
+  s2.classList.remove('active'); s2.classList.add('done');
+  s2.querySelector('.stp-n').innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
+  document.getElementById('stp3').classList.add('active');
+
+  // Render per-item token cards
+  document.getElementById('tokenCardsGrid').innerHTML = tokens.map(t =>
+    `<div class="token-card">
+       <div class="tc-lbl">Token</div>
+       <div class="tc-num">#${t.token}</div>
+       <div class="tc-item">${t.itemName}</div>
+     </div>`).join('');
+
+  const O = OUTLET_MAP[S.outletId] || OUTLET_MAP[1];
+  const [hh, mm] = (S.selectedSlot || '10:00').split(':').map(Number);
+  const dh  = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+  const suf = hh < 12 ? 'AM' : 'PM';
+  const fmt = `${dh}:${String(mm).padStart(2, '0')} ${suf}`;
+
+  document.getElementById('confGrid').innerHTML = `
+    <div class="ccg-cell"><div class="ccg-lbl">Order ID</div><div class="ccg-val" style="font-size:11.5px">${orderId}</div></div>
+    <div class="ccg-cell"><div class="ccg-lbl">Outlet</div><div class="ccg-val">${O.name}</div></div>
+    <div class="ccg-cell"><div class="ccg-lbl">Pickup Slot</div><div class="ccg-val" style="color:var(--pri)">${fmt}</div></div>
+    <div class="ccg-cell"><div class="ccg-lbl">Payment</div><div class="ccg-val" style="color:var(--green)">✓ Paid</div></div>`;
+
+  document.getElementById('confItems').innerHTML = S.cart.map(i =>
+    `<div class="cci">
+       <img src="${i.img}" alt="${i.name}" loading="lazy">
+       <span class="cci-nm">${i.name} <span style="color:var(--muted)">×${i.qty}</span></span>
+       <span class="cci-pr">₹${i.price * i.qty}</span>
+     </div>`).join('');
+
+  document.getElementById('confTotalRow').innerHTML =
+    `<span>Total Paid</span><span style="color:var(--red)">₹${total}</span>`;
+
+  toast(`🎉 Order placed! ${tokens.length} token${tokens.length>1?'s':''} generated`, 's');
+
+  // Send confirmation email
+  sendOrderEmail(orderId, tokens, total, fmt, O.name);
+  // ── Real-time: listen for status update on this order ──
+  try {
+    const socket = io('http://localhost:3000');
+    socket.emit('join_order', orderId);
+
+    socket.on('status_update', ({ status }) => {
+      if (status === 'collected') {
+        // Strike through all token cards
+        document.querySelectorAll('.token-card').forEach(card => {
+          card.style.background    = 'linear-gradient(135deg,#555,#888)';
+          card.style.opacity       = '0.6';
+          card.style.border        = '2px solid #aaa';
+          const num = card.querySelector('.tc-num');
+          if (num) {
+            num.style.textDecoration = 'line-through';
+            num.style.color          = '#ccc';
+          }
+        });
+        toast('✅ Order collected! Thanks for using QueueBuster.', 's');
+        // Also update order history on index if open
+        const card = document.getElementById('ohcard-' + orderId);
+        if (card) {
+          card.classList.add('collected');
+          card.querySelector('.oh-status').className = 'oh-status collected';
+          card.querySelector('.oh-status').textContent = '📦 Collected';
+          card.querySelectorAll('.oh-token').forEach(t => t.classList.add('done'));
+        }
+      }
+    });
+  } catch(e) {
+    console.warn('Socket not available:', e.message);
+  }
+}
+
+async function sendOrderEmail(orderId, tokens, total, slot, outletName) {
+  const emailEl = document.getElementById('emailStatus');
+  const textEl  = document.getElementById('emailStatusText');
+  const userEmail = S.user?.email || '';
+
+  if (!userEmail) {
+    emailEl.style.background = '#fef9e7';
+    emailEl.style.borderColor = '#f9ca24';
+    emailEl.style.color = '#b7950b';
+    emailEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>No email on file — confirmation not sent</span>`;
+    return;
+  }
+
+  // Build items summary text for email
+  const itemsText = S.cart.map((i, idx) => `${i.name} x${i.qty} — ₹${i.price * i.qty} | Token: #${tokens[idx]?.token || '-'}`).join('\n');
+  const rzpFee    = Math.round(total * 0.02 / 1.02); // reverse-calc commission from total
+  
+  const templateParams = {
+    to_email:    userEmail,
+    to_name:     S.user?.name || 'Student',
+    order_id:    orderId,
+    token_no:    tokens.map(t => `#${t.token}`).join(', '),
+    outlet_name: outletName,
+    pickup_slot: slot,
+    items_list:  itemsText,
+    subtotal:    `₹${total - rzpFee}`,
+    commission:  `₹${rzpFee}`,
+    total_paid:  `₹${total}`,
+    college_id:  S.user?.college_id || '',
+  };
+
+  try {
+    await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, templateParams);
+    emailEl.style.background  = '#eafaf1';
+    emailEl.style.borderColor = '#a9dfbf';
+    emailEl.style.color       = '#1e8449';
+    emailEl.innerHTML = `<i class="fas fa-envelope-open-text" style="color:#27ae60;font-size:16px"></i>
+      <div>
+        <div style="font-weight:700">Confirmation email sent!</div>
+        <div style="font-size:11px;font-weight:400;color:#555;margin-top:2px">Sent to <strong>${userEmail}</strong></div>
+      </div>`;
+  } catch(err) {
+    console.error('EmailJS error:', err);
+    emailEl.style.background  = '#fdecea';
+    emailEl.style.borderColor = '#f5b7b1';
+    emailEl.style.color       = '#c0392b';
+    emailEl.innerHTML = `<i class="fas fa-times-circle"></i>
+      <div>
+        <div style="font-weight:700">Email not sent</div>
+        <div style="font-size:11px;font-weight:400;color:#555;margin-top:2px">Configure EmailJS keys in cart.html to enable this</div>
+      </div>`;
+  }
+}
+
+function goToTrack() {
+  if (!S.confirmedOrder) { location.href = 'track-order.html'; return; }
+  const o    = S.confirmedOrder;
+  const O    = OUTLET_MAP[S.outletId] || OUTLET_MAP[1];
+  const [hh, mm] = (S.selectedSlot || '10:00').split(':').map(Number);
+  const dh   = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+  const suf  = hh < 12 ? 'AM' : 'PM';
+  const slotFmt = `${dh}:${String(mm).padStart(2,'0')} ${suf}`;
+  const now  = new Date();
+  const nowFmt = `${now.getHours() > 12 ? now.getHours()-12 : now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} ${now.getHours() < 12 ? 'AM' : 'PM'}`;
+  const orderData = {
+    orderId:    o.order_id,
+    tokens:     o.tokens,
+    outletId:   S.outletId,
+    status:     'pending',
+    pickupSlot: slotFmt,
+    placedAt:   nowFmt,
+    payment:    'Online (Razorpay)',
+    items:      S.cart.map(i => ({
+      name: i.name, qty: i.qty, price: i.price, img: i.img,
+      status: 'pending'
+    }))
+  };
+  const param = btoa(JSON.stringify(orderData));
+  location.href = `track-order.html?order=${param}`;
+}
+
+/* ════════════════════════════════════════════════════
+   CANCEL ORDER MODAL
+   Refund % is determined by current order status:
+     pending   → 100%
+     preparing → 50%
+     ready     → 0%
+     collected → 0%
+
+   LIVE:  POST /api/orders/:orderId/cancel
+          Body: { reason }
+          Response: { success, refund_amount, refund_pct, message }
+
+   Backend must:
+     - Check current status from DB
+     - Calculate refund amount
+     - Initiate Razorpay refund via API
+     - Update order status to 'cancelled'
+     - Return refund_amount
+════════════════════════════════════════════════════ */
+function openCancelModal() {
+  const order = S.confirmedOrder;
+  if (!order) return;
+
+  document.getElementById('cmOrderId').textContent = order.order_id;
+  document.getElementById('cmStatus').textContent  = order.status || 'pending';
+  document.getElementById('cmPaid').textContent    = `₹${order.total}`;
+
+  const status     = order.status || 'pending';
+  const refundPct  = status === 'pending' ? 75 : status === 'preparing' ? 50 : 0;
+  const refundAmt  = Math.round(order.total * refundPct / 100);
+  const boxClass   = refundPct === 100 ? 'full' : refundPct === 50 ? 'half' : 'none';
+  const descText   = refundPct === 100
+    ? '75% refund — order not yet started (within 2 hours)'
+    : refundPct === 50
+    ? '50% refund — outlet already cooking (within 2 hours)'
+    : 'No refund — food is ready or collected';
+
+  document.getElementById('refundBox').className        = 'refund-box ' + boxClass;
+  document.getElementById('refundAmt').textContent      = `₹${refundAmt}`;
+  document.getElementById('refundDesc').textContent     = descText;
+  document.getElementById('cancelReason').value         = '';
+  document.getElementById('cancelModalBack').classList.add('on');
+}
+
+function closeCancelModal() {
+  document.getElementById('cancelModalBack').classList.remove('on');
+}
+
+// Close modal on backdrop click
+document.getElementById('cancelModalBack').addEventListener('click', e => {
+  if (e.target === document.getElementById('cancelModalBack')) closeCancelModal();
+});
+
+async function confirmCancel() {
+  const reason = document.getElementById('cancelReason').value;
+  if (!reason) { toast('Please select a cancellation reason', 'e'); return; }
+
+  const order = S.confirmedOrder;
+  if (!order)  return;
+
+  if (DEMO_MODE) {
+    const refundPct = order.status === 'pending' ? 75 : order.status === 'preparing' ? 50 : 0;
+    const refund    = Math.round(order.total * refundPct / 100);
+    order.status    = 'cancelled';
+    closeCancelModal();
+    document.getElementById('cancelOrderBtn').disabled    = true;
+    document.getElementById('cancelOrderBtn').textContent = '✓ Order Cancelled';
+    toast(
+      refund > 0
+        ? `Order cancelled. ₹${refund} refund initiated (within 2 hours).`
+        : 'Order cancelled. No refund applicable.',
+      refund > 0 ? 's' : 'e'
+    );
+    return;
+  }
+
+  /* LIVE */
+  try {
+    const res  = await apiFetch(`/api/orders/${order.order_id}/cancel`, 'POST', { reason });
+    const data = await res.json();
+    closeCancelModal();
+    if (data.success) {
+      order.status = 'cancelled';
+      document.getElementById('cancelOrderBtn').disabled    = true;
+      document.getElementById('cancelOrderBtn').textContent = '✓ Order Cancelled';
+      toast(
+        data.refund_amount > 0
+          ? `Order cancelled. ₹${data.refund_amount} refund initiated.`
+          : 'Order cancelled. No refund applicable.',
+        data.refund_amount > 0 ? 's' : 'e'
+      );
+    } else {
+      toast(data.message || 'Cannot cancel at this stage', 'e');
+    }
+  } catch (e) {
+    toast('Cancellation failed. Try from Track Order page.', 'e');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   API HELPER
+   Attaches JWT token to every request automatically
+════════════════════════════════════════════════════ */
+function apiFetch(path, method = 'GET', body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('qb_token')}`,
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(API_BASE + path, opts);
+}
+
+/* ════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════ */
+function toast(msg, type = '') {
+  const root = document.getElementById('tr');
+  const t    = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  const icon  = type === 's' ? '✅' : type === 'e' ? '❌' : 'ℹ️';
+  t.innerHTML = `<span style="font-size:16px">${icon}</span><span class="toast-m">${msg}</span>`;
+  root.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = '.3s';
+    t.style.opacity    = '0';
+    t.style.transform  = 'translateY(8px)';
+    setTimeout(() => t.remove(), 320);
+  }, 3200);
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueBuster — Login / Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#eaeded;
+  color:#0f1111;
+  font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit;border:none}
+input,select{font-family:inherit}
+
+/* ─────────────────────────────────────────
+   VARIABLES
+───────────────────────────────────────── */
+:root{
+  --pri:#0f3d2e;
+  --pri-l:#1a5c43;
+  --pri-d:#092b1f;
+  --acc:#f5a623;
+  --acc-d:#d4891a;
+  --red:#c0392b;
+  --green:#27ae60;
+  --bg:#eaeded;
+  --white:#fff;
+  --txt:#0f1111;
+  --txt2:#565959;
+  --muted:#8b9196;
+  --brd:#ddd;
+  --brd-f:#f5a623;
+  --inp-bg:#f9fafb;
+  --sh:0 2px 8px rgba(0,0,0,.10);
+  --sh-lg:0 8px 32px rgba(0,0,0,.14);
+}
+
+/* ─────────────────────────────────────────
+   NAVBAR (minimal)
+───────────────────────────────────────── */
+.nav{
+  background:var(--pri);
+  padding:10px 20px;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+  position:sticky;top:0;z-index:100;
+}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--acc)}
+.nav-logo-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff}
+.nav-logo-tag{font-size:9px;color:rgba(255,255,255,.55);display:block;line-height:1}
+.nav-back{
+  color:rgba(255,255,255,.8);font-size:13px;
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:4px;
+  border:1px solid rgba(255,255,255,.2);
+  transition:.15s;
+}
+.nav-back:hover{color:#fff;border-color:#fff}
+
+/* ─────────────────────────────────────────
+   PAGE LAYOUT — split screen
+───────────────────────────────────────── */
+.page{
+  min-height:calc(100vh - 58px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+}
+
+/* LEFT — hero panel */
+.left{
+  background:linear-gradient(145deg,var(--pri) 0%,var(--pri-l) 60%,#1a6644 100%);
+  display:flex;flex-direction:column;
+  justify-content:center;
+  padding:50px 48px;
+  position:relative;
+  overflow:hidden;
+}
+.left::before{
+  content:'';position:absolute;
+  top:-80px;right:-80px;
+  width:300px;height:300px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.left::after{
+  content:'';position:absolute;
+  bottom:-60px;left:-60px;
+  width:220px;height:220px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.left-inner{position:relative;z-index:1}
+.left-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px}
+.left-logo-img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid var(--acc)}
+.left-logo-text{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.left-logo-sub{font-size:11px;color:rgba(255,255,255,.55);display:block}
+.left-tagline{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#fff;line-height:1.25;margin-bottom:12px}
+.left-tagline em{color:var(--acc);font-style:normal}
+.left-sub{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:32px}
+
+/* Feature list */
+.features{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+.feat{display:flex;align-items:flex-start;gap:12px}
+.feat-icon{
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.feat-text{flex:1}
+.feat-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.feat-desc{font-size:12px;color:rgba(255,255,255,.58);line-height:1.4}
+
+/* Food preview images */
+.food-preview{display:flex;gap:10px}
+.fp-img{
+  flex:1;height:76px;border-radius:10px;
+  object-fit:cover;
+  border:2px solid rgba(255,255,255,.15);
+  transition:.3s;
+}
+.fp-img:hover{transform:scale(1.04);border-color:var(--acc)}
+
+/* RIGHT — auth forms */
+.right{
+  display:flex;align-items:center;justify-content:center;
+  padding:40px 20px;
+  background:#f5f5f5;
+}
+.auth-box{
+  width:100%;max-width:420px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:var(--sh-lg);
+  overflow:hidden;
+}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:2px solid #f0f0f0}
+.tab{
+  flex:1;padding:16px;
+  font-size:14px;font-weight:700;
+  color:var(--muted);background:none;
+  border:none;cursor:pointer;
+  transition:.2s;position:relative;
+}
+.tab::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:2px;background:var(--pri);
+  transform:scaleX(0);transition:.2s;
+}
+.tab.on{color:var(--pri)}
+.tab.on::after{transform:scaleX(1)}
+.tab:hover:not(.on){color:var(--txt2)}
+
+/* Form panels */
+.panels{position:relative;overflow:hidden}
+.panel{
+  padding:28px;
+  display:none;
+}
+.panel.on{display:block}
+
+/* Form elements */
+.form-title{
+  font-family:'Sora',sans-serif;
+  font-size:20px;font-weight:700;
+  color:var(--txt);margin-bottom:4px;
+}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+
+.field{margin-bottom:16px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.field label{
+  display:block;font-size:12px;font-weight:700;
+  color:var(--txt2);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.field label span{color:var(--red)}
+
+.inp-wrap{position:relative}
+.inp-icon{
+  position:absolute;left:12px;top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);font-size:14px;
+  pointer-events:none;
+}
+.inp{
+  width:100%;height:42px;
+  border:1.5px solid var(--brd);
+  border-radius:6px;
+  padding:0 40px 0 38px;
+  font-size:14px;color:var(--txt);
+  background:var(--inp-bg);
+  outline:none;transition:.2s;
+}
+.inp:focus{border-color:var(--pri);background:#fff;box-shadow:0 0 0 3px rgba(15,61,46,.1)}
+.inp.err{border-color:var(--red)}
+.inp.ok{border-color:var(--green)}
+.inp-eye{
+  position:absolute;right:11px;top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);font-size:14px;
+  cursor:pointer;background:none;border:none;
+  padding:0;transition:.15s;
+}
+.inp-eye:hover{color:var(--pri)}
+.inp-no-icon{padding-left:12px}
+
+/* Helper text */
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px}
+.field-err{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.field-err.show{display:block}
+
+/* Password strength bar */
+.pw-strength{margin-top:7px}
+.pw-bars{display:flex;gap:4px;margin-bottom:4px}
+.pw-bar{height:3px;flex:1;border-radius:2px;background:#e0e0e0;transition:.3s}
+.pw-bar.w{background:#e74c3c}
+.pw-bar.m{background:#e67e22}
+.pw-bar.s{background:var(--green)}
+.pw-label{font-size:11px;color:var(--muted)}
+
+/* Submit button */
+.submit-btn{
+  width:100%;height:44px;
+  background:var(--acc);color:var(--pri);
+  font-size:15px;font-weight:800;
+  border-radius:6px;border:none;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:6px;
+}
+.submit-btn:hover{background:var(--acc-d);transform:translateY(-1px);box-shadow:0 4px 14px rgba(245,166,35,.4)}
+.submit-btn:active{transform:none}
+.submit-btn.loading{opacity:.7;cursor:not-allowed;pointer-events:none}
+
+/* Divider */
+.divider{
+  display:flex;align-items:center;gap:10px;
+  margin:16px 0;color:var(--muted);font-size:12px;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;background:var(--brd);
+}
+
+/* Quick login chips */
+.quick-login{display:flex;gap:8px;margin-bottom:16px}
+.ql-btn{
+  flex:1;height:36px;
+  border:1.5px solid var(--brd);
+  border-radius:6px;font-size:12px;font-weight:600;
+  background:#fff;color:var(--txt2);transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.ql-btn:hover{border-color:var(--pri);color:var(--pri);background:#f5f8f5}
+
+/* Forgot password link */
+.forgot-link{
+  font-size:12px;color:#007185;
+  position:absolute;right:0;bottom:0;
+}
+.forgot-link:hover{text-decoration:underline;color:var(--acc-d)}
+
+/* Role selector */
+.role-select{display:flex;gap:8px;margin-bottom:16px}
+.role-opt{
+  flex:1;height:40px;
+  border:1.5px solid var(--brd);border-radius:6px;
+  font-size:13px;font-weight:600;
+  background:#fff;color:var(--txt2);transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;
+}
+.role-opt.sel{border-color:var(--pri);background:#f0f8f4;color:var(--pri)}
+
+/* ── PORTAL SWITCHER (Student vs Admin) ── */
+.portal-switch{
+  display:flex;
+  background:#f0f0f0;
+  border-radius:10px;
+  padding:4px;
+  margin:0 0 0 0;
+  gap:4px;
+}
+.portal-btn{
+  flex:1;height:40px;border-radius:7px;
+  font-size:13px;font-weight:700;
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  color:var(--muted);background:transparent;
+  transition:.2s;
+}
+.portal-btn.on{
+  background:#fff;color:var(--pri);
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+.portal-btn.admin-btn.on{
+  background:var(--pri);color:#fff;
+  box-shadow:0 2px 10px rgba(15,61,46,.25);
+}
+
+/* Admin panel */
+.admin-panel{padding:28px;display:none}
+.admin-panel.on{display:block}
+.admin-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--pri);color:#fff;
+  font-size:11px;font-weight:800;
+  padding:4px 12px;border-radius:20px;
+  margin-bottom:18px;letter-spacing:.5px;text-transform:uppercase;
+}
+.admin-outlet-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  margin-bottom:18px;
+}
+.ao-tab{
+  padding:10px 8px;border-radius:7px;
+  border:1.5px solid var(--brd);background:#fff;
+  font-size:12px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  color:var(--txt2);transition:.2s;
+  text-align:center;line-height:1.3;
+}
+.ao-tab:hover{border-color:var(--pri);color:var(--pri)}
+.ao-tab.on{border-color:var(--pri);background:#f0f8f4;color:var(--pri)}
+.ao-tab .ao-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.admin-login-btn{
+  width:100%;height:44px;
+  background:var(--pri);color:#fff;
+  font-size:15px;font-weight:800;
+  border-radius:6px;border:none;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:4px;
+}
+.admin-login-btn:hover{background:var(--pri-l);transform:translateY(-1px);box-shadow:0 4px 14px rgba(15,61,46,.3)}
+.admin-login-btn:active{transform:none}
+.admin-login-btn.loading{opacity:.7;pointer-events:none}
+.admin-sec-note{
+  margin-top:14px;
+  background:#f8f9fa;border-radius:7px;padding:10px 12px;
+  font-size:11px;color:var(--muted);
+  display:flex;align-items:flex-start;gap:7px;line-height:1.5;
+}
+.admin-sec-note i{color:var(--green);margin-top:1px;flex-shrink:0}
+
+/* Terms */
+.terms-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:16px}
+.terms-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--pri);flex-shrink:0;margin-top:1px}
+.terms-row label{font-size:12px;color:var(--txt2);cursor:pointer;line-height:1.5}
+.terms-row label a{color:#007185}
+
+/* Already have account */
+.switch-prompt{text-align:center;font-size:13px;color:var(--muted);margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+.switch-prompt a{color:var(--pri);font-weight:700}
+.switch-prompt a:hover{text-decoration:underline}
+
+/* ─────────────────────────────────────────
+   OTP PANEL (overlays the auth-box)
+───────────────────────────────────────── */
+.otp-panel{
+  padding:32px 28px;
+  display:none;
+  text-align:center;
+}
+.otp-panel.on{display:block}
+.otp-icon{font-size:48px;margin-bottom:14px}
+.otp-title{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;margin-bottom:5px}
+.otp-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.otp-sub strong{color:var(--txt)}
+
+/* OTP input row */
+.otp-boxes{
+  display:flex;gap:10px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.otp-inp{
+  width:46px;height:54px;
+  border:2px solid var(--brd);border-radius:8px;
+  text-align:center;font-size:22px;font-weight:800;
+  color:var(--pri);outline:none;transition:.2s;
+  background:var(--inp-bg);
+}
+.otp-inp:focus{border-color:var(--pri);background:#fff;box-shadow:0 0 0 3px rgba(15,61,46,.12)}
+.otp-inp.filled{border-color:var(--green);background:#f0fdf4}
+
+/* Resend timer */
+.otp-resend{font-size:13px;color:var(--muted);margin-bottom:20px}
+.otp-resend .timer{font-weight:700;color:var(--red)}
+.otp-resend .resend-btn{
+  color:#007185;font-weight:700;cursor:pointer;
+  background:none;border:none;font-size:13px;
+  display:none;
+}
+.otp-resend .resend-btn:hover{text-decoration:underline}
+
+.otp-verify-btn{
+  width:100%;height:44px;
+  background:var(--acc);color:var(--pri);
+  font-size:15px;font-weight:800;
+  border-radius:6px;border:none;
+  cursor:pointer;transition:all .2s;
+  margin-bottom:12px;
+}
+.otp-verify-btn:hover{background:var(--acc-d);transform:translateY(-1px)}
+.otp-back{font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none}
+.otp-back:hover{color:var(--pri);text-decoration:underline}
+
+/* ─────────────────────────────────────────
+   FORGOT PASSWORD PANEL
+───────────────────────────────────────── */
+.forgot-panel{
+  padding:32px 28px;
+  display:none;
+}
+.forgot-panel.on{display:block}
+
+/* ─────────────────────────────────────────
+   SUCCESS PANEL
+───────────────────────────────────────── */
+.success-panel{
+  padding:40px 28px;
+  display:none;
+  text-align:center;
+}
+.success-panel.on{display:block}
+.success-anim{font-size:60px;margin-bottom:16px;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.5);opacity:0}80%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.success-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--green);margin-bottom:6px}
+.success-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.go-home-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--pri);color:#fff;
+  font-weight:700;font-size:14px;
+  padding:11px 28px;border-radius:6px;
+  transition:.2s;text-decoration:none;
+}
+.go-home-btn:hover{background:var(--pri-l);transform:translateY(-1px)}
+
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+#toast-root{
+  position:fixed;bottom:22px;right:22px;
+  z-index:9999;
+  display:flex;flex-direction:column;gap:10px;
+}
+.toast{
+  background:#fff;border-radius:8px;
+  padding:12px 16px;
+  display:flex;align-items:center;gap:11px;
+  box-shadow:0 4px 20px rgba(0,0,0,.16);
+  border-left:4px solid var(--acc);
+  min-width:260px;
+  animation:toastin .3s ease;
+}
+@keyframes toastin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.toast.s{border-left-color:var(--green)}
+.toast.e{border-left-color:var(--red)}
+.toast-msg{font-size:13px;font-weight:600;flex:1}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media(max-width:900px){
+  .page{grid-template-columns:1fr}
+  .left{display:none}
+  .right{padding:24px 16px;background:var(--bg)}
+}
+@media(max-width:480px){
+  .right{padding:16px 10px}
+  .auth-box{border-radius:8px}
+  .panel{padding:20px}
+  .otp-inp{width:40px;height:48px;font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <img class="nav-logo-img" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=80&h=80&fit=crop" alt="SC">
+    <div>
+      <span class="nav-logo-brand">QueueBuster</span>
+      <span class="nav-logo-sub">Canteen Ordering &amp; Queue Management</span>
+    </div>
+  </a>
+  <a href="index.html" class="nav-back">
+    <i class="fas fa-arrow-left"></i> Back to Home
+  </a>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- ════════════ LEFT — HERO ════════════ -->
+  <div class="left">
+    <div class="left-inner">
+
+      <div class="left-logo">
+        <img class="left-logo-img" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=104&h=104&fit=crop" alt="SC">
+        <div>
+          <span class="left-logo-text">QueueBuster</span>
+          <span class="left-logo-sub">Canteen Ordering &amp; Queue Management</span>
+        </div>
+      </div>
+
+      <div class="left-tagline">Order Food.<br><em>Skip the Queue.</em><br>Enjoy Your Break.</div>
+      <div class="left-sub">Pre-order from 4 campus outlets, pick a 10-minute slot, walk in and collect — zero waiting, every single time.</div>
+
+      <div class="features">
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-clock" style="color:var(--acc)"></i></div>
+          <div class="feat-text">
+            <div class="feat-title">10-Minute Pickup Slots</div>
+            <div class="feat-desc">Choose your slot — 10:10, 10:20, 10:30… Your food is ready when you arrive</div>
+          </div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-receipt" style="color:var(--acc)"></i></div>
+          <div class="feat-text">
+            <div class="feat-title">Token-Based Collection</div>
+            <div class="feat-desc">Get a unique token per order. Show it at the counter — no standing in line</div>
+          </div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-store" style="color:var(--acc)"></i></div>
+          <div class="feat-text">
+            <div class="feat-title">4 Outlets, One Platform</div>
+            <div class="feat-desc">Canteen 1, Canteen 2, Cafeteria &amp; Juice Point — all in one place</div>
+          </div>
+        </div>
+        <div class="feat">
+          <div class="feat-icon"><i class="fas fa-shield-alt" style="color:var(--acc)"></i></div>
+          <div class="feat-text">
+            <div class="feat-title">Secure Payment</div>
+            <div class="feat-desc">UPI via Razorpay — fast, secure and instant</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="food-preview">
+        <img class="fp-img" src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=152&fit=crop" alt="Biryani">
+        <img class="fp-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=152&fit=crop" alt="Burger">
+        <img class="fp-img" src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=200&h=152&fit=crop" alt="Coffee">
+        <img class="fp-img" src="https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=200&h=152&fit=crop" alt="Smoothie">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════ RIGHT — AUTH BOX ════════════ -->
+  <div class="right">
+    <div class="auth-box" id="authBox">
+
+      <!-- ─── PORTAL SWITCHER ─── -->
+      <div style="padding:14px 14px 10px;border-bottom:1px solid #f0f0f0">
+        <div class="portal-switch">
+          <button class="portal-btn on" id="portalStudent" onclick="switchPortal('student')">
+            <i class="fas fa-graduation-cap"></i> Student / Faculty
+          </button>
+          <button class="portal-btn admin-btn" id="portalAdmin" onclick="switchPortal('admin')">
+            <i class="fas fa-shield-alt"></i> Admin Portal
+          </button>
+        </div>
+      </div>
+
+      <!-- ─── TABS (student/faculty) ─── -->
+      <div class="tabs" id="tabRow">
+        <button class="tab on" id="tabSignin" onclick="switchTab('signin')">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+        <button class="tab" id="tabSignup" onclick="switchTab('signup')">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <!-- ════════════════════════════
+           SIGN IN PANEL
+      ════════════════════════════ -->
+      <div class="panel on" id="panelSignin">
+        <div class="form-title">Welcome back!</div>
+        <div class="form-sub">Sign in with your college credentials to continue</div>
+
+        <!-- Quick login chips -->
+        <div class="quick-login">
+          <button class="ql-btn" onclick="quickFill('student')">
+            <i class="fas fa-graduation-cap"></i> I'm a Student
+          </button>
+          <button class="ql-btn" onclick="quickFill('faculty')">
+            <i class="fas fa-chalkboard-teacher"></i> I'm Faculty
+          </button>
+        </div>
+
+        <div class="field">
+          <label>College Email <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-envelope inp-icon"></i>
+            <input class="inp" id="si-email" type="email" placeholder="yourname@college.edu" autocomplete="email">
+          </div>
+          <div class="field-err" id="si-email-err">Please enter a valid college email</div>
+        </div>
+
+        <div class="field">
+          <label>Password <span>*</span></label>
+          <div class="inp-wrap" style="position:relative">
+            <i class="fas fa-lock inp-icon"></i>
+            <input class="inp" id="si-pass" type="password" placeholder="Enter your password" autocomplete="current-password">
+            <button class="inp-eye" onclick="togglePw('si-pass',this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+            <a href="#" class="forgot-link" onclick="showForgot(event)">Forgot?</a>
+          </div>
+          <div class="field-err" id="si-pass-err">Password is required</div>
+        </div>
+
+        <button class="submit-btn" id="signinBtn" onclick="doSignin()">
+          <span>Sign In</span><i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div class="switch-prompt">
+          New here? <a href="#" onclick="switchTab('signup');return false">Create an account →</a>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════
+           SIGN UP PANEL
+      ════════════════════════════ -->
+      <div class="panel" id="panelSignup">
+        <div class="form-title">Create Account</div>
+        <div class="form-sub">Sign up with your college ID and email to get started</div>
+
+        <!-- Name row -->
+        <div class="field-row">
+          <div class="field" style="margin-bottom:0">
+            <label>First Name <span>*</span></label>
+            <div class="inp-wrap">
+              <i class="fas fa-user inp-icon"></i>
+              <input class="inp" id="su-fname" type="text" placeholder="First name">
+            </div>
+            <div class="field-err" id="su-fname-err">Required</div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Last Name <span>*</span></label>
+            <div class="inp-wrap">
+              <i class="fas fa-user inp-icon"></i>
+              <input class="inp" id="su-lname" type="text" placeholder="Last name">
+            </div>
+            <div class="field-err" id="su-lname-err">Required</div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:16px">
+          <label>College ID <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-id-card inp-icon"></i>
+            <input class="inp" id="su-clgid" type="text" placeholder="e.g. 21CS101" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="field-hint">Your student / faculty ID card number</div>
+          <div class="field-err" id="su-clgid-err">College ID is required</div>
+        </div>
+
+        <div class="field">
+          <label>College Email <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-envelope inp-icon"></i>
+            <input class="inp" id="su-email" type="email" placeholder="yourname@college.edu" autocomplete="email">
+          </div>
+          <div class="field-hint">An OTP will be sent to this email for verification</div>
+          <div class="field-err" id="su-email-err">Please enter a valid college email</div>
+        </div>
+
+        <!-- Role selector -->
+        <div class="field">
+          <label>I am a <span>*</span></label>
+          <div class="role-select">
+            <div class="role-opt sel" id="role-student" onclick="selectRole('student')">
+              <i class="fas fa-graduation-cap"></i> Student
+            </div>
+            <div class="role-opt" id="role-faculty" onclick="selectRole('faculty')">
+              <i class="fas fa-chalkboard-teacher"></i> Faculty
+            </div>
+          </div>
+          <input type="hidden" id="su-role" value="student">
+        </div>
+
+        <div class="field">
+          <label>Password <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-lock inp-icon"></i>
+            <input class="inp" id="su-pass" type="password" placeholder="Create a strong password" oninput="checkStrength(this.value)" autocomplete="new-password">
+            <button class="inp-eye" onclick="togglePw('su-pass',this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+          </div>
+          <div class="pw-strength" id="pwStrength" style="display:none">
+            <div class="pw-bars">
+              <div class="pw-bar" id="pb1"></div>
+              <div class="pw-bar" id="pb2"></div>
+              <div class="pw-bar" id="pb3"></div>
+              <div class="pw-bar" id="pb4"></div>
+            </div>
+            <div class="pw-label" id="pwLabel">Weak</div>
+          </div>
+          <div class="field-err" id="su-pass-err">Minimum 8 characters required</div>
+        </div>
+
+        <div class="field">
+          <label>Confirm Password <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-lock inp-icon"></i>
+            <input class="inp" id="su-cpass" type="password" placeholder="Re-enter password" autocomplete="new-password">
+            <button class="inp-eye" onclick="togglePw('su-cpass',this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+          </div>
+          <div class="field-err" id="su-cpass-err">Passwords do not match</div>
+        </div>
+
+        <div class="terms-row">
+          <input type="checkbox" id="terms-check">
+          <label for="terms-check">
+            I agree to the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a> of QueueBuster
+          </label>
+        </div>
+
+        <button class="submit-btn" id="signupBtn" onclick="doSignup()">
+          <span>Create Account &amp; Get OTP</span><i class="fas fa-paper-plane"></i>
+        </button>
+
+        <div class="switch-prompt">
+          Already have an account? <a href="#" onclick="switchTab('signin');return false">Sign in →</a>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════
+           OTP VERIFICATION PANEL
+      ════════════════════════════ -->
+      <div class="otp-panel" id="panelOtp">
+        <div class="otp-icon">📧</div>
+        <div class="otp-title">Verify Your Email</div>
+        <div class="otp-sub">
+          We've sent a 6-digit OTP to<br>
+          <strong id="otpEmailDisplay"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0d7462787f636c60684d6e626161686a6823686978">[email&#160;protected]</a></strong><br>
+          Please enter it below to verify your account.
+        </div>
+
+        <div class="otp-boxes">
+          <input class="otp-inp" id="otp1" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'otp2')" onkeydown="otpBack(event,this,'')">
+          <input class="otp-inp" id="otp2" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'otp3')" onkeydown="otpBack(event,this,'otp1')">
+          <input class="otp-inp" id="otp3" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'otp4')" onkeydown="otpBack(event,this,'otp2')">
+          <input class="otp-inp" id="otp4" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'otp5')" onkeydown="otpBack(event,this,'otp3')">
+          <input class="otp-inp" id="otp5" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'otp6')" onkeydown="otpBack(event,this,'otp4')">
+          <input class="otp-inp" id="otp6" type="text" maxlength="1" inputmode="numeric" oninput="otpNext(this,'')" onkeydown="otpBack(event,this,'otp5')">
+        </div>
+
+        <div class="otp-resend">
+          Didn't receive? &nbsp;
+          <span class="timer" id="otpTimer">Resend in 60s</span>
+          <button class="resend-btn" id="resendBtn" onclick="resendOtp()">Resend OTP</button>
+        </div>
+
+        <button class="otp-verify-btn" onclick="verifyOtp()">
+          <i class="fas fa-check-circle"></i> &nbsp;Verify &amp; Continue
+        </button>
+        <br>
+        <button class="otp-back" onclick="backToSignup()">← Go back and edit details</button>
+      </div>
+
+      <!-- ════════════════════════════
+           FORGOT PASSWORD PANEL
+      ════════════════════════════ -->
+      <div class="forgot-panel" id="panelForgot">
+        <div style="text-align:center;margin-bottom:22px">
+          <div style="font-size:44px;margin-bottom:10px">🔑</div>
+          <div class="form-title">Forgot Password?</div>
+          <div class="form-sub" style="margin-bottom:0">Enter your college email — we'll send an OTP to reset your password</div>
+        </div>
+
+        <div class="field">
+          <label>College Email <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-envelope inp-icon"></i>
+            <input class="inp" id="fp-email" type="email" placeholder="yourname@college.edu">
+          </div>
+          <div class="field-err" id="fp-email-err">Please enter a valid email</div>
+        </div>
+
+        <button class="submit-btn" onclick="sendResetOtp()">
+          <span>Send Reset OTP</span><i class="fas fa-paper-plane"></i>
+        </button>
+
+        <div class="switch-prompt" style="margin-top:14px">
+          <a href="#" onclick="showSignin(event)">← Back to Sign In</a>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════
+           ADMIN LOGIN PANEL
+      ════════════════════════════ -->
+      <div class="admin-panel" id="panelAdmin">
+
+        <div class="admin-badge">
+          <i class="fas fa-shield-alt"></i> Admin Access Only
+        </div>
+
+        <div class="form-title" style="margin-bottom:4px">Admin Sign In</div>
+        <div class="form-sub">Select your outlet and enter your admin credentials</div>
+
+        <!-- Outlet selector -->
+        <div class="field">
+          <label>Your Outlet <span>*</span></label>
+          <div class="admin-outlet-tabs" id="outletTabs">
+            <div class="ao-tab on" id="ao-1" onclick="selectOutlet(1)">
+              <span class="ao-dot" style="background:#e74c3c"></span>Canteen 1
+            </div>
+            <div class="ao-tab" id="ao-2" onclick="selectOutlet(2)">
+              <span class="ao-dot" style="background:#2980b9"></span>Canteen 2
+            </div>
+            <div class="ao-tab" id="ao-3" onclick="selectOutlet(3)">
+              <span class="ao-dot" style="background:#8e44ad"></span>Cafeteria
+            </div>
+            <div class="ao-tab" id="ao-4" onclick="selectOutlet(4)">
+              <span class="ao-dot" style="background:#27ae60"></span>Juice Point
+            </div>
+          </div>
+          <input type="hidden" id="admin-outlet" value="1">
+        </div>
+
+        <!-- Admin ID -->
+        <div class="field">
+          <label>Admin ID <span>*</span></label>
+          <div class="inp-wrap">
+            <i class="fas fa-user-shield inp-icon"></i>
+            <input class="inp" id="adm-id" type="text" placeholder="e.g. ADM-C1-001" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="field-err" id="adm-id-err">Admin ID is required</div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label>Password <span>*</span></label>
+          <div class="inp-wrap" style="position:relative">
+            <i class="fas fa-lock inp-icon"></i>
+            <input class="inp" id="adm-pass" type="password" placeholder="Enter admin password" autocomplete="current-password">
+            <button class="inp-eye" onclick="togglePw('adm-pass',this)" tabindex="-1"><i class="fas fa-eye"></i></button>
+          </div>
+          <div class="field-err" id="adm-pass-err">Password is required</div>
+        </div>
+
+        <button class="admin-login-btn" id="adminLoginBtn" onclick="doAdminLogin()">
+          <i class="fas fa-sign-in-alt"></i> Sign In to Canteen 1
+        </button>
+
+        <div class="admin-sec-note">
+          <i class="fas fa-info-circle"></i>
+          <span>Admin access is restricted to authorised outlet staff only. All login attempts are logged by the system.</span>
+        </div>
+
+        <!-- Demo quick-fill -->
+        <div style="margin-top:14px;text-align:center">
+          <button onclick="adminQuickFill()" style="background:none;border:none;color:#007185;font-size:12px;font-weight:600;cursor:pointer">
+            <i class="fas fa-bolt"></i> Fill Demo Credentials
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════
+           SUCCESS PANEL
+      ════════════════════════════ -->
+      <div class="success-panel" id="panelSuccess">
+        <div class="success-anim">🎉</div>
+        <div class="success-title">Account Verified!</div>
+        <div class="success-sub">
+          Welcome to QueueBuster!<br>
+          Your account has been created successfully.<br>
+          You can now pre-order from all 4 outlets.
+        </div>
+        <a href="index.html" class="go-home-btn">
+          <i class="fas fa-home"></i> Go to Homepage
+        </a>
+      </div>
+
+    </div><!-- end auth-box -->
+  </div><!-- end right -->
+</div><!-- end page -->
+
+<div id="toast-root"></div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── State ── */
+const API_BASE = 'http://localhost:3000';
+let currentRole = 'student';
+let otpTimerInterval;
+let pendingEmail = '';
+let pendingSignupData = null;
+let otpFlowMode = 'signup';
+const redirectAfterLogin = new URLSearchParams(window.location.search).get('redirect');
+
+/* ── Tab switching ── */
+function switchTab(tab) {
+  ['signin','signup'].forEach(t => {
+    document.getElementById('tab' + cap(t)).classList.toggle('on', t === tab);
+    document.getElementById('panel' + cap(t)).classList.toggle('on', t === tab);
+  });
+  clearErrors();
+}
+function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1) }
+
+/* ── Portal switcher (Student vs Admin) ── */
+let currentPortal = 'student';
+
+function switchPortal(portal){
+  currentPortal = portal;
+  const isAdmin = portal === 'admin';
+
+  document.getElementById('portalStudent').classList.toggle('on', !isAdmin);
+  document.getElementById('portalAdmin').classList.toggle('on', isAdmin);
+
+  // Hide/show student tabs + panels
+  document.getElementById('tabRow').style.display = isAdmin ? 'none' : 'flex';
+
+  if(isAdmin){
+    hidePanels();
+    document.getElementById('panelAdmin').classList.add('on');
+    // Clear any active admin errors
+    ['adm-id-err','adm-pass-err'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.classList.remove('show');
+    });
+    ['adm-id','adm-pass'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.classList.remove('err','ok');
+    });
+  } else {
+    document.getElementById('panelAdmin').classList.remove('on');
+    document.getElementById('panelSignin').classList.add('on');
+    document.getElementById('tabSignin').classList.add('on');
+    document.getElementById('tabSignup').classList.remove('on');
+  }
+}
+
+/* ── Outlet selector in admin form ── */
+let selectedOutlet = 1;
+const OUTLET_NAMES = {1:'Canteen 1', 2:'Canteen 2', 3:'Cafeteria', 4:'Juice Point'};
+function selectOutlet(n){
+  selectedOutlet = n;
+  document.getElementById('admin-outlet').value = n;
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('ao-'+i).classList.toggle('on', i===n);
+  });
+  document.getElementById('adminLoginBtn').innerHTML =
+    '<i class="fas fa-sign-in-alt"></i> Sign In to ' + OUTLET_NAMES[n];
+}
+
+/* ── Admin quick fill (demo) ── */
+function adminQuickFill(){
+  document.getElementById('adm-id').value   = 'ADM-C1-001';
+  document.getElementById('adm-pass').value = 'Admin@123';
+  showToast('Demo admin credentials filled!','');
+}
+
+/* ── Admin login ── */
+async function doAdminLogin(){
+  clearErrors();
+  const id   = document.getElementById('adm-id').value.trim();
+  const pass = document.getElementById('adm-pass').value;
+  let ok = true;
+  if(!id){   showErr('adm-id-err','Admin ID is required');     ok=false; }
+  if(!pass){ showErr('adm-pass-err','Password is required');   ok=false; }
+  if(!ok) return;
+
+  const btn = document.getElementById('adminLoginBtn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+  try {
+    const data = await apiFetch('/api/auth/admin-login', 'POST', {
+      admin_id:  id,
+      password:  pass,
+      outlet_id: selectedOutlet,
+    });
+
+    if (!data.success || !data.token) {
+      throw new Error(data.message || 'Invalid admin credentials');
+    }
+
+    localStorage.setItem('qb_admin_token', data.token);
+    localStorage.setItem('qb_admin_outlet', data.outlet_id || selectedOutlet);
+    localStorage.setItem('qb_admin_user', JSON.stringify({
+      name: data.name || 'Admin',
+      outlet_id: data.outlet_id || selectedOutlet,
+    }));
+
+    showToast('Welcome, ' + OUTLET_NAMES[selectedOutlet] + ' Admin! Redirecting…', 's');
+    setTimeout(() => { window.location.href = 'admin.html'; }, 700);
+  } catch (err) {
+    showToast(err.message || 'Admin login failed', 'e');
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to ' + OUTLET_NAMES[selectedOutlet];
+  }
+}
+
+/* ── Role selector ── */
+function selectRole(role){
+  currentRole = role;
+  document.getElementById('su-role').value = role;
+  document.getElementById('role-student').classList.toggle('sel', role === 'student');
+  document.getElementById('role-faculty').classList.toggle('sel', role === 'faculty');
+}
+
+/* ── Quick fill (demo) — autofills AND signs in ── */
+function quickFill(type){
+  if(type === 'student'){
+    document.getElementById('si-email').value = 'student@college.edu';
+    document.getElementById('si-pass').value  = 'Student@123';
+    showToast('Student credentials filled — press Sign In to continue','s');
+  } else {
+    document.getElementById('si-email').value = 'faculty@college.edu';
+    document.getElementById('si-pass').value  = 'Faculty@123';
+    showToast('Faculty credentials filled — press Sign In to continue','s');
+  }
+}
+
+/* ── Toggle password visibility ── */
+function togglePw(id, btn){
+  const inp = document.getElementById(id);
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  btn.innerHTML = `<i class="fas fa-${isText ? 'eye' : 'eye-slash'}"></i>`;
+}
+
+/* ── Password strength ── */
+function checkStrength(val){
+  const el = document.getElementById('pwStrength');
+  el.style.display = val.length ? 'block' : 'none';
+  let score = 0;
+  if(val.length >= 8) score++;
+  if(/[A-Z]/.test(val)) score++;
+  if(/[0-9]/.test(val)) score++;
+  if(/[^A-Za-z0-9]/.test(val)) score++;
+  const bars = [document.getElementById('pb1'),document.getElementById('pb2'),document.getElementById('pb3'),document.getElementById('pb4')];
+  const labels = ['','Weak','Fair','Good','Strong'];
+  const cls = ['','w','w','m','s'];
+  bars.forEach((b,i) => {
+    b.className = 'pw-bar';
+    if(i < score) b.classList.add(cls[score]);
+  });
+  document.getElementById('pwLabel').textContent = labels[score] || 'Very Weak';
+  document.getElementById('pwLabel').style.color = score <= 1 ? 'var(--red)' : score === 2 ? '#e67e22' : 'var(--green)';
+}
+
+/* ── Validation helpers ── */
+function showErr(id, msg){ const e = document.getElementById(id); e.textContent = msg || e.textContent; e.classList.add('show'); document.getElementById(id.replace('-err','')).classList.add('err'); }
+function clearErr(id){ const e = document.getElementById(id); if(e){ e.classList.remove('show'); const inp = document.getElementById(id.replace('-err','')); if(inp) inp.classList.remove('err','ok'); } }
+function clearErrors(){ document.querySelectorAll('.field-err').forEach(e => e.classList.remove('show')); document.querySelectorAll('.inp').forEach(e => e.classList.remove('err','ok')); }
+function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) }
+
+/* ── SIGN IN ── */
+async function doSignin(){
+  clearErrors();
+  const email = document.getElementById('si-email').value.trim();
+  const clgid = document.getElementById('si-pass').value.trim();
+  if (!isEmail(email)) { showToast('Enter a valid email', 'e'); return; }
+  if (!clgid) { showToast('Enter your College ID in the password field to continue', 'e'); return; }
+
+  const btn = document.getElementById('signinBtn');
+  if (btn) {
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP…';
+  }
+
+  try {
+    const data = await apiFetch('/api/auth/send-otp', 'POST', {
+      email,
+      college_id: clgid,
+      name: '',
+      department: '',
+    });
+    if (!data.success) throw new Error(data.message || 'Failed to send OTP');
+    pendingSignupData = null;
+    otpFlowMode = 'signin';
+    showOtp(email);
+    showToast('OTP sent to your email', 's');
+  } catch (err) {
+    showToast(err.message || 'Sign in failed', 'e');
+  } finally {
+    if (btn) {
+      btn.classList.remove('loading');
+      btn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right"></i>';
+    }
+  }
+}
+
+/* ── SIGN UP ── */
+async function doSignup(){
+  clearErrors();
+  const fname  = document.getElementById('su-fname').value.trim();
+  const lname  = document.getElementById('su-lname').value.trim();
+  const clgid  = document.getElementById('su-clgid').value.trim();
+  const email  = document.getElementById('su-email').value.trim();
+  const pass   = document.getElementById('su-pass').value;
+  const cpass  = document.getElementById('su-cpass').value;
+  const terms  = document.getElementById('terms-check').checked;
+  let ok = true;
+
+  if(!fname){ showErr('su-fname-err'); ok = false; }
+  if(!lname){ showErr('su-lname-err'); ok = false; }
+  if(!clgid){ showErr('su-clgid-err'); ok = false; }
+  if(!isEmail(email)){ showErr('su-email-err'); ok = false; }
+  if(pass.length < 8){ showErr('su-pass-err'); ok = false; }
+  if(pass !== cpass){ showErr('su-cpass-err','Passwords do not match'); ok = false; }
+  if(!terms){ showToast('Please accept the Terms of Use to continue','e'); ok = false; }
+  if(!ok) return;
+
+  const btn = document.getElementById('signupBtn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+
+  pendingEmail = email;
+
+  try {
+    const data = await apiFetch('/api/auth/send-otp', 'POST', {
+      email,
+      college_id: clgid,
+      name: `${fname} ${lname}`.trim(),
+      department: currentRole,
+    });
+    if (!data.success) throw new Error(data.message || 'Failed to send OTP');
+
+    pendingSignupData = {
+      name: `${fname} ${lname}`.trim(),
+      college_id: clgid,
+      email,
+      department: currentRole,
+    };
+
+    otpFlowMode = 'signup';
+    showOtp(email);
+  } catch (err) {
+    showToast(err.message || 'Could not send OTP', 'e');
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '<span>Create Account &amp; Get OTP</span><i class="fas fa-paper-plane"></i>';
+  }
+}
+
+/* ── OTP flow ── */
+function showOtp(email){
+  pendingEmail = email;
+  document.getElementById('otpEmailDisplay').textContent = email;
+  hidePanels();
+  document.getElementById('tabRow').style.display = 'none';
+  document.getElementById('panelOtp').classList.add('on');
+  ['otp1','otp2','otp3','otp4','otp5','otp6'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('filled');
+  });
+  document.getElementById('otp1').focus();
+  startOtpTimer();
+}
+
+function otpNext(current, nextId){
+  if(current.value.length === 1 && /^\d$/.test(current.value)){
+    current.classList.add('filled');
+    if(nextId) document.getElementById(nextId).focus();
+  } else {
+    current.value = '';
+    current.classList.remove('filled');
+  }
+}
+
+function otpBack(e, current, prevId){
+  if(e.key === 'Backspace' && !current.value && prevId){
+    const prev = document.getElementById(prevId);
+    prev.value = '';
+    prev.classList.remove('filled');
+    prev.focus();
+  }
+}
+
+function startOtpTimer(){
+  let sec = 60;
+  const timerEl  = document.getElementById('otpTimer');
+  const resendBtn = document.getElementById('resendBtn');
+  timerEl.style.display = 'inline';
+  resendBtn.style.display = 'none';
+  clearInterval(otpTimerInterval);
+  otpTimerInterval = setInterval(() => {
+    sec--;
+    timerEl.textContent = `Resend in ${sec}s`;
+    if(sec <= 0){
+      clearInterval(otpTimerInterval);
+      timerEl.style.display = 'none';
+      resendBtn.style.display = 'inline';
+    }
+  }, 1000);
+}
+
+async function resendOtp(){
+  try {
+    const payload = pendingSignupData || {
+      email: pendingEmail,
+      college_id: document.getElementById('si-pass').value.trim(),
+      name: '',
+      department: '',
+    };
+    const data = await apiFetch('/api/auth/send-otp', 'POST', payload);
+    if (!data.success) throw new Error(data.message || 'Could not resend OTP');
+    showToast('OTP resent to ' + pendingEmail, 's');
+    startOtpTimer();
+  } catch (err) {
+    showToast(err.message || 'OTP resend failed', 'e');
+  }
+}
+
+async function verifyOtp(){
+  const digits = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id => document.getElementById(id).value);
+  if(digits.some(d => !d)){
+    showToast('Please enter all 6 digits','e');
+    return;
+  }
+  const otp = digits.join('');
+
+  try {
+    const data = await apiFetch('/api/auth/verify-otp', 'POST', {
+      email: pendingEmail,
+      otp,
+    });
+    if (!data.success || !data.token) throw new Error(data.message || 'Invalid OTP');
+
+    localStorage.setItem('qb_token', data.token);
+    localStorage.setItem('qb_user', JSON.stringify(data.user));
+    clearInterval(otpTimerInterval);
+    showToast('OTP verified successfully', 's');
+    if (otpFlowMode === 'signin') {
+      const nextPage = redirectAfterLogin || 'index.html';
+      setTimeout(() => { window.location.href = nextPage; }, 500);
+      return;
+    }
+
+    hidePanels();
+    document.getElementById('panelSuccess').classList.add('on');
+  } catch (err) {
+    showToast(err.message || 'OTP verification failed', 'e');
+  }
+}
+
+function backToSignup(){
+  clearInterval(otpTimerInterval);
+  hidePanels();
+  document.getElementById('tabRow').style.display = 'flex';
+  document.getElementById('panelSignup').classList.add('on');
+  document.getElementById('tabSignup').classList.add('on');
+  document.getElementById('tabSignin').classList.remove('on');
+}
+
+/* ── Forgot password ── */
+function showForgot(e){
+  e.preventDefault();
+  hidePanels();
+  document.getElementById('tabRow').style.display = 'none';
+  document.getElementById('panelForgot').classList.add('on');
+}
+
+function showSignin(e){
+  e.preventDefault();
+  hidePanels();
+  document.getElementById('tabRow').style.display = 'flex';
+  document.getElementById('panelSignin').classList.add('on');
+  document.getElementById('tabSignin').classList.add('on');
+  document.getElementById('tabSignup').classList.remove('on');
+}
+
+async function sendResetOtp(){
+  const email = document.getElementById('fp-email').value.trim();
+  if(!isEmail(email)){ showErr('fp-email-err'); return; }
+
+  try {
+    const data = await apiFetch('/api/auth/send-otp', 'POST', {
+      email,
+      college_id: 'RESET_FLOW',
+      name: '',
+      department: '',
+    });
+    if (!data.success) throw new Error(data.message || 'Failed to send OTP');
+    showToast('OTP sent to ' + email, 's');
+    showOtp(email);
+  } catch (err) {
+    showToast(err.message || 'Could not send reset OTP', 'e');
+  }
+}
+
+function hidePanels(){
+  ['panelSignin','panelSignup','panelOtp','panelForgot','panelSuccess','panelAdmin']
+    .forEach(id => document.getElementById(id).classList.remove('on'));
+}
+
+/* ── Toast ── */
+function showToast(msg, type=''){
+  const root = document.getElementById('toast-root');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  const icon = type==='s' ? '✅' : type==='e' ? '❌' : 'ℹ️';
+  t.innerHTML = `<span style="font-size:17px">${icon}</span><span class="toast-msg">${msg}</span>`;
+  root.appendChild(t);
+  setTimeout(()=>{ t.style.transition='all .3s'; t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),320); }, 2800);
+}
+
+async function apiFetch(path, method = 'GET', body = null){
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.message || 'Request failed');
+  }
+  return data;
+}
+
+/* ── Enter key support ── */
+document.addEventListener('keydown', e => {
+  const panel = document.querySelector('.panel.on');
+  if(!panel) return;
+  if(e.key === 'Enter'){
+    if(document.getElementById('panelSignin').classList.contains('on'))  doSignin();
+    if(document.getElementById('panelSignup').classList.contains('on'))  doSignup();
+    if(document.getElementById('panelForgot').classList.contains('on'))  sendResetOtp();
+    if(document.getElementById('panelAdmin').classList.contains('on'))   doAdminLogin();
+  }
+});
+</script>
+</body>
+</html>

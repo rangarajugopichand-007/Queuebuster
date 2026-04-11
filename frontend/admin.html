@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueBuster — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ───────────────────────────────────────
+   RESET & BASE
+─────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{font-family:'DM Sans',sans-serif;background:#f1f3f4;color:#0f1111;font-size:14px;-webkit-font-smoothing:antialiased;height:100%}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit;border:none}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+
+:root{
+  --pri:#0f3d2e;--pri-l:#1a5c43;--pri-d:#092b1f;
+  --acc:#f5a623;--acc-d:#d4891a;--acc-l:#fff8ec;
+  --red:#c0392b;--red-l:#fdf0ef;
+  --green:#27ae60;--green-l:#eafaf1;
+  --blue:#2471a3;--blue-l:#eaf4fc;
+  --orange:#e67e22;--orange-l:#fef5ec;
+  --purple:#8e44ad;--purple-l:#f5eef8;
+  --bg:#f1f3f4;--white:#fff;
+  --txt:#0f1111;--txt2:#565959;--muted:#8b9196;
+  --brd:#e0e0e0;--brd-l:#f0f0f0;
+  --sh:0 1px 6px rgba(0,0,0,.08);
+  --sh-md:0 4px 16px rgba(0,0,0,.10);
+  --sh-lg:0 8px 28px rgba(0,0,0,.14);
+  --sb:240px; /* sidebar width */
+  --hh:58px;  /* header height */
+  --c1:#e74c3c;--c1l:#fef0ef;
+  --c2:#2980b9;--c2l:#eaf4fc;
+  --cf:#8e44ad;--cfl:#f5eef8;
+  --jp:#27ae60;--jpl:#eafaf1;
+}
+
+/* ───────────────────────────────────────
+   SHELL LAYOUT
+─────────────────────────────────────── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sb);flex-shrink:0;
+  background:var(--pri-d);
+  display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
+  transition:.25s;
+}
+.sb-head{
+  padding:16px 18px 14px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-logo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--acc);flex-shrink:0}
+.sb-brand{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff;display:block}
+.sb-role{font-size:10px;color:rgba(255,255,255,.5);display:block}
+
+/* Outlet selector */
+.outlet-picker{
+  padding:10px 14px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.op-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.op-sel{
+  width:100%;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;color:#fff;padding:7px 10px;
+  font-size:12px;font-weight:700;outline:none;cursor:pointer;
+}
+.op-sel option{background:#1a3d2e;color:#fff}
+
+/* Nav sections */
+.sb-section{padding:10px 10px 4px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-section:last-child{border-bottom:none}
+.sb-sec-lbl{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.7px;padding:0 8px;margin-bottom:5px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:6px;
+  font-size:13px;font-weight:500;color:rgba(255,255,255,.72);
+  cursor:pointer;transition:.15s;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.on{background:rgba(245,166,35,.15);color:var(--acc)}
+.nav-item .icon{width:18px;text-align:center;flex-shrink:0;font-size:13px}
+.nav-badge{
+  margin-left:auto;background:var(--acc);color:var(--pri);
+  font-size:9px;font-weight:800;border-radius:10px;
+  padding:1px 6px;line-height:1.5;
+}
+.nav-badge.red{background:var(--red);color:#fff}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Top header */
+.header{
+  height:var(--hh);flex-shrink:0;
+  background:#fff;
+  border-bottom:1px solid var(--brd-l);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;
+  box-shadow:var(--sh);
+  z-index:100;
+}
+.hd-left{display:flex;align-items:center;gap:14px}
+.page-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700}
+.hd-right{display:flex;align-items:center;gap:10px}
+.hd-btn{
+  height:34px;padding:0 14px;
+  border-radius:6px;font-size:12.5px;font-weight:700;
+  border:1.5px solid var(--brd);background:#fff;color:var(--txt2);
+  display:flex;align-items:center;gap:6px;transition:.15s;
+}
+.hd-btn:hover{border-color:var(--pri);color:var(--pri)}
+.hd-btn.primary{background:var(--acc);color:var(--pri);border-color:var(--acc)}
+.hd-btn.primary:hover{background:var(--acc-d);border-color:var(--acc-d)}
+.outlet-pill{
+  font-size:11px;font-weight:800;
+  padding:4px 12px;border-radius:20px;
+  display:flex;align-items:center;gap:5px;
+}
+.live-dot{width:7px;height:7px;border-radius:50%;animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* Content area */
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ───────────────────────────────────────
+   SECTION PANELS (tabs)
+─────────────────────────────────────── */
+.panel{display:none}
+.panel.on{display:block}
+
+/* ───────────────────────────────────────
+   STAT CARDS
+─────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{
+  background:#fff;border-radius:10px;
+  padding:18px 18px 14px;
+  box-shadow:var(--sh);
+  border-left:4px solid var(--brd);
+  transition:.2s;cursor:default;
+}
+.stat-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
+.stat-card.green{border-left-color:var(--green)}
+.stat-card.orange{border-left-color:var(--orange)}
+.stat-card.blue{border-left-color:var(--blue)}
+.stat-card.purple{border-left-color:var(--purple)}
+.stat-card.red{border-left-color:var(--red)}
+.sc-icon{
+  width:40px;height:40px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;margin-bottom:11px;
+}
+.sc-icon.green{background:var(--green-l);color:var(--green)}
+.sc-icon.orange{background:var(--orange-l);color:var(--orange)}
+.sc-icon.blue{background:var(--blue-l);color:var(--blue)}
+.sc-icon.purple{background:var(--purple-l);color:var(--purple)}
+.sc-icon.red{background:var(--red-l);color:var(--red)}
+.sc-val{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;margin-bottom:3px}
+.sc-lbl{font-size:12px;color:var(--muted)}
+.sc-change{font-size:11px;margin-top:5px;display:flex;align-items:center;gap:4px}
+.sc-change.up{color:var(--green)}.sc-change.down{color:var(--red)}
+
+/* ───────────────────────────────────────
+   ORDERS TABLE
+─────────────────────────────────────── */
+.card{background:#fff;border-radius:10px;box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.card-head{
+  padding:14px 18px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--brd-l);flex-wrap:wrap;gap:10px;
+}
+.card-title{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Filter tabs */
+.ftabs{display:flex;gap:4px}
+.ftab{
+  padding:5px 12px;border-radius:20px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  border:1.5px solid var(--brd);background:#fff;
+  color:var(--txt2);transition:.15s;
+}
+.ftab:hover{border-color:var(--pri);color:var(--pri)}
+.ftab.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+/* Search */
+.tbl-search{
+  height:34px;display:flex;
+  border:1.5px solid var(--brd);border-radius:6px;overflow:hidden;
+}
+.tbl-search:focus-within{border-color:var(--pri)}
+.tbl-search i{padding:0 9px;display:flex;align-items:center;color:var(--muted);background:#f9f9f9;border-right:1px solid var(--brd);font-size:13px}
+.tbl-search input{border:none;outline:none;padding:0 10px;font-size:13px;width:180px}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  background:#f8f8f8;padding:10px 14px;
+  text-align:left;font-size:11px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1.5px solid var(--brd-l);white-space:nowrap;
+}
+td{
+  padding:12px 14px;border-bottom:1px solid var(--brd-l);
+  font-size:13px;vertical-align:middle;
+}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+/* Order token chip */
+.token-chip{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--pri),var(--pri-l));
+  color:var(--acc);font-family:'Sora',sans-serif;
+  font-size:13px;font-weight:800;
+  width:34px;height:34px;border-radius:8px;
+  flex-shrink:0;transition:.3s;
+}
+.token-chip.collected{
+  background:#e0e0e0;color:#aaa;
+  text-decoration:line-through;
+  box-shadow:none;
+}
+
+/* Status pills */
+.spill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;white-space:nowrap}
+.spill.pending  {background:var(--orange-l);color:var(--orange)}
+.spill.preparing{background:var(--blue-l);color:var(--blue)}
+.spill.ready    {background:var(--green-l);color:var(--green)}
+.spill.completed{background:#f5f5f5;color:var(--muted)}
+.spill.cancelled{background:var(--red-l);color:var(--red)}
+.sp-dot{width:6px;height:6px;border-radius:50%}
+
+/* Action buttons in table */
+.tbl-act{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.act-btn{
+  height:28px;padding:0 10px;border-radius:5px;
+  font-size:11px;font-weight:700;
+  border:1.5px solid;transition:.15s;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
+}
+.act-btn.prep{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.act-btn.prep:hover{background:var(--blue);color:#fff}
+.act-btn.ready{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.act-btn.ready:hover{background:var(--green);color:#fff}
+.act-btn.cancel{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.act-btn.cancel:hover{background:var(--red);color:#fff}
+.act-btn.view{border-color:var(--brd);color:var(--txt2);background:#fff}
+.act-btn.view:hover{border-color:var(--pri);color:var(--pri)}
+.act-btn.collect{border-color:var(--acc);color:var(--acc-d);background:var(--acc-l);font-weight:800}
+.act-btn.collect:hover{background:var(--acc);color:#fff}
+
+/* Items mini list in cell */
+.items-mini{font-size:12px;color:var(--txt2);line-height:1.6;max-width:200px}
+.items-mini span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ───────────────────────────────────────
+   MENU MANAGEMENT
+─────────────────────────────────────── */
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
+  padding:18px;
+}
+.menu-item-card{
+  background:#fff;border:1px solid var(--brd-l);
+  border-radius:8px;overflow:hidden;
+  box-shadow:var(--sh);transition:all .2s;
+}
+.menu-item-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+.mic-img{height:110px;overflow:hidden;position:relative}
+.mic-img img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.menu-item-card:hover .mic-img img{transform:scale(1.05)}
+.mic-avail{
+  position:absolute;top:7px;right:7px;
+  font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.mic-avail.on{background:var(--green);color:#fff}
+.mic-avail.off{background:var(--red);color:#fff}
+.mic-special{
+  position:absolute;top:7px;left:7px;
+  background:var(--acc);color:var(--pri);
+  font-size:9px;font-weight:800;
+  padding:2px 7px;border-radius:8px;
+  text-transform:uppercase;
+}
+.mic-veg{
+  position:absolute;bottom:7px;right:7px;
+  background:#fff;padding:2px;border-radius:3px;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.ivdot{width:13px;height:13px;border-radius:3px;border:1.5px solid;display:flex;align-items:center;justify-content:center}
+.ivdot::after{content:'';width:5px;height:5px;border-radius:50%}
+.ivdot.v{border-color:#2e7d32}.ivdot.v::after{background:#2e7d32}
+.ivdot.nv{border-color:#c62828}.ivdot.nv::after{background:#c62828}
+
+.mic-body{padding:10px 11px}
+.mic-name{font-size:13px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mic-cat{font-size:10.5px;color:var(--muted);margin-bottom:8px}
+.mic-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.mic-price{font-size:15px;font-weight:800;color:var(--red)}
+.stock-edit{display:flex;align-items:center;gap:5px;font-size:12px}
+.stock-inp{
+  width:50px;height:26px;
+  border:1.5px solid var(--brd);border-radius:5px;
+  text-align:center;font-size:12px;font-weight:700;
+  outline:none;transition:.15s;
+}
+.stock-inp:focus{border-color:var(--pri)}
+.mic-actions{display:flex;gap:5px}
+.mic-act{
+  flex:1;height:28px;border-radius:5px;
+  font-size:11px;font-weight:700;
+  border:1.5px solid;transition:.15s;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.mic-act.edit{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.mic-act.edit:hover{background:var(--blue);color:#fff}
+.mic-act.tog{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.mic-act.tog:hover{background:var(--green);color:#fff}
+.mic-act.tog.off{border-color:var(--orange);color:var(--orange);background:var(--orange-l)}
+.mic-act.tog.off:hover{background:var(--orange);color:#fff}
+.mic-act.special{border-color:var(--acc-d);color:var(--acc-d);background:var(--acc-l)}
+.mic-act.special:hover{background:var(--acc);color:var(--pri)}
+.mic-act.special.set{background:var(--acc);color:var(--pri);border-color:var(--acc)}
+
+/* Stock indicator bar */
+.mic-stock-bar{height:3px;background:var(--brd-l);border-radius:2px;margin-bottom:7px;overflow:hidden}
+.mic-stock-fill{height:100%;border-radius:2px;transition:.3s}
+
+/* ───────────────────────────────────────
+   TODAY'S SPECIAL MANAGER
+─────────────────────────────────────── */
+.special-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:18px}
+.special-outlet-card{
+  background:#fff;border-radius:10px;
+  border:2px solid var(--brd-l);
+  overflow:hidden;box-shadow:var(--sh);
+}
+.soc-head{padding:13px 15px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between}
+.soc-outlet{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.soc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.soc-count{font-size:11px;color:var(--muted)}
+.soc-body{padding:12px}
+.special-item-row{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 9px;border-radius:6px;
+  margin-bottom:6px;background:#f9f9f9;
+  border:1.5px solid var(--brd-l);transition:.15s;
+}
+.special-item-row.set{background:var(--acc-l);border-color:rgba(245,166,35,.4)}
+.si-img{width:42px;height:38px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg)}
+.si-name{flex:1;font-size:12.5px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.si-price{font-size:13px;font-weight:800;color:var(--red);flex-shrink:0}
+.si-star-btn{
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--brd);background:#fff;
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:.15s;cursor:pointer;
+}
+.si-star-btn.on{background:var(--acc);border-color:var(--acc);color:var(--pri)}
+.si-star-btn:hover{border-color:var(--acc);color:var(--acc-d)}
+
+/* ───────────────────────────────────────
+   INVENTORY MANAGER
+─────────────────────────────────────── */
+.inv-table td{vertical-align:middle}
+.inv-stock-wrap{display:flex;align-items:center;gap:9px}
+.inv-bar{flex:1;height:6px;background:var(--brd-l);border-radius:3px;overflow:hidden}
+.inv-fill{height:100%;border-radius:3px;transition:.4s}
+.inv-num{font-size:12px;font-weight:700;min-width:30px;text-align:right}
+.inv-inp{width:56px;height:30px;border:1.5px solid var(--brd);border-radius:5px;text-align:center;font-size:12px;font-weight:700;outline:none}
+.inv-inp:focus{border-color:var(--pri)}
+.inv-save{height:28px;padding:0 10px;border-radius:5px;font-size:11px;font-weight:700;background:var(--pri);color:#fff;border:none;transition:.15s}
+.inv-save:hover{background:var(--pri-l)}
+.low-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--orange-l);color:var(--orange)}
+.out-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--red-l);color:var(--red)}
+
+/* ───────────────────────────────────────
+   SALES REPORT
+─────────────────────────────────────── */
+.report-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:18px}
+.chart-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* Simple bar chart (CSS-only) */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding-bottom:4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{
+  width:100%;border-radius:5px 5px 0 0;
+  background:var(--pri);transition:.4s;
+  min-height:4px;cursor:pointer;
+  position:relative;
+}
+.bar:hover{background:var(--acc);filter:brightness(1.05)}
+.bar-val{font-size:10px;font-weight:700;color:var(--txt2);white-space:nowrap}
+.bar-lbl{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap}
+
+/* Donut chart (SVG) */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.donut-legend{width:100%}
+.dl-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dl-name{font-size:12px;flex:1}
+.dl-pct{font-size:12px;font-weight:700}
+
+/* Top items table */
+.top-items td:first-child{font-weight:700}
+.rank-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  font-size:11px;font-weight:800;
+  background:var(--brd-l);color:var(--muted);
+}
+.rank-badge.r1{background:#FFD700;color:#664d00}
+.rank-badge.r2{background:#C0C0C0;color:#444}
+.rank-badge.r3{background:#CD7F32;color:#fff}
+
+/* ───────────────────────────────────────
+   MODAL
+─────────────────────────────────────── */
+.modal-backdrop{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:1000;
+  display:none;
+  align-items:center;justify-content:center;
+  padding:16px;
+  backdrop-filter:blur(3px);
+}
+.modal-backdrop.on{display:flex}
+.modal{
+  background:#fff;border-radius:12px;
+  width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;
+  box-shadow:var(--sh-lg);
+  animation:modIn .25s ease;
+}
+@keyframes modIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:none}}
+.modal-head{
+  padding:16px 20px 14px;
+  border-bottom:1px solid var(--brd-l);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:#fff;z-index:1;
+}
+.modal-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:700}
+.modal-close{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--bg);border:none;
+  font-size:16px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:.15s;
+}
+.modal-close:hover{background:var(--red-l);color:var(--red)}
+.modal-body{padding:18px 20px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.field label span{color:var(--red)}
+.inp{
+  width:100%;height:40px;
+  border:1.5px solid var(--brd);border-radius:6px;
+  padding:0 11px;font-size:13px;color:var(--txt);
+  background:#fff;outline:none;transition:.15s;
+}
+.inp:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(15,61,46,.08)}
+.inp.ta{height:auto;padding:9px 11px;resize:vertical;min-height:70px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-foot{
+  padding:14px 20px 16px;
+  border-top:1px solid var(--brd-l);
+  display:flex;gap:10px;justify-content:flex-end;
+  position:sticky;bottom:0;background:#fff;
+}
+.modal-btn{
+  height:38px;padding:0 20px;border-radius:6px;
+  font-size:13px;font-weight:700;transition:.15s;
+  display:flex;align-items:center;gap:6px;
+}
+.modal-btn.cancel{border:1.5px solid var(--brd);color:var(--txt2);background:#fff}
+.modal-btn.cancel:hover{border-color:var(--red);color:var(--red)}
+.modal-btn.save{background:var(--pri);color:#fff;border:none}
+.modal-btn.save:hover{background:var(--pri-l)}
+
+/* ───────────────────────────────────────
+   TOAST
+─────────────────────────────────────── */
+#tr{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:#fff;border-radius:8px;padding:11px 15px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.16);border-left:4px solid var(--acc);min-width:250px;animation:tin .3s ease;pointer-events:all}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast.s{border-left-color:var(--green)}.toast.e{border-left-color:var(--red)}
+.toast-m{font-size:13px;font-weight:600;flex:1}
+
+/* ───────────────────────────────────────
+   RESPONSIVE
+─────────────────────────────────────── */
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){
+  .sidebar{position:fixed;left:-100%;z-index:900;transition:.3s}
+  .sidebar.open{left:0}
+  .report-grid{grid-template-columns:1fr}
+  .special-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .menu-grid{grid-template-columns:1fr 1fr}
+  .content{padding:12px}
+}
+</style>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ═══════════════════════════════
+     SIDEBAR
+═══════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sb-head">
+    <img class="sb-logo" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=80&h=80&fit=crop" alt="SC">
+    <div>
+      <span class="sb-brand">QueueBuster</span>
+      <span class="sb-role" id="sbRole">Admin — Canteen 1</span>
+    </div>
+  </div>
+
+  <div class="outlet-picker">
+    <div class="op-lbl">Your Outlet</div>
+    <div id="outletStaticLabel" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#fff;padding:8px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px">
+      <span id="outletDotSb" style="width:8px;height:8px;border-radius:50%;background:var(--acc);flex-shrink:0"></span>
+      <span id="outletLabelSb">Canteen 1</span>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-sec-lbl">Menu</div>
+    <div class="nav-item on" id="nav-orders" onclick="showPanel('orders',this)">
+      <span class="icon"><i class="fas fa-receipt"></i></span> Live Orders
+      <span class="nav-badge red" id="liveCount">5</span>
+    </div>
+    <div class="nav-item" id="nav-menu" onclick="showPanel('menu',this)"><span class="icon"><i class="fas fa-utensils"></i></span> Menu Items</div>
+    <div class="nav-item" id="nav-inventory" onclick="showPanel('inventory',this)">
+      <span class="icon"><i class="fas fa-boxes-stacked"></i></span> Inventory
+      <span class="nav-badge" id="lowCount">3</span>
+    </div>
+    <div class="nav-item" id="nav-slots" onclick="showPanel('slots',this)"><span class="icon"><i class="far fa-clock"></i></span> Slot Management</div>
+  </div>
+
+  <div class="sb-section">
+    <div class="nav-item" onclick="location.href='login.html'"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Log Out</div>
+  </div>
+
+</aside>
+
+<!-- ═══════════════════════════════
+     MAIN
+═══════════════════════════════ -->
+<div class="main">
+
+  <!-- TOP HEADER -->
+  <div class="header">
+    <div class="hd-left">
+      <button class="hd-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;border:none" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div>
+        <div class="page-title" id="pageTitle">Live Orders</div>
+      </div>
+    </div>
+    <div class="hd-right">
+      <div class="outlet-pill" id="headerPill" style="background:var(--c1l);color:var(--c1)">
+        <span class="live-dot" style="background:var(--green)"></span>
+        Canteen 1 · Open
+      </div>
+      <button class="hd-btn primary" id="headerAction" onclick="openAddItemModal()">
+        <i class="fas fa-plus"></i> Add Item
+      </button>
+      <a href="index.html" class="hd-btn"><i class="fas fa-external-link-alt"></i> View Site</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- ─────────────────────────────
+         PANEL: ORDERS
+    ───────────────────────────── -->
+    <div class="panel on" id="panel-orders">
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><i class="fas fa-receipt" style="color:var(--orange)"></i> All Orders Today</div>
+          <div class="card-actions">
+            <div class="ftabs" id="orderFtabs">
+              <button class="ftab on" onclick="filterOrders('all',this)">All <span id="cnt-all"></span></button>
+              <button class="ftab" onclick="filterOrders('pending',this)">Pending</button>
+              <button class="ftab" onclick="filterOrders('preparing',this)">Preparing</button>
+              <button class="ftab" onclick="filterOrders('ready',this)">Ready</button>
+              <button class="ftab" onclick="filterOrders('completed',this)">Completed</button>
+            </div>
+            <div class="tbl-search"><i class="fas fa-search"></i><input id="orderSearch" placeholder="Search order, token…" oninput="filterOrders('','')"></div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Order ID</th>
+                <th>Student</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Slot</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─────────────────────────────
+         PANEL: MENU ITEMS
+    ───────────────────────────── -->
+    <div class="panel" id="panel-menu">
+
+      <div class="card" style="margin-bottom:0">
+        <div class="card-head">
+          <div class="card-title"><i class="fas fa-utensils" style="color:var(--pri)"></i> Menu Items</div>
+          <div class="card-actions">
+            <div class="tbl-search" style="margin-right:4px"><i class="fas fa-search"></i><input id="menuSearch" placeholder="Search items…" oninput="filterMenuItems()"></div>
+            <button class="hd-btn primary" onclick="openAddItemModal()"><i class="fas fa-plus"></i> Add New Item</button>
+          </div>
+        </div>
+        <div class="menu-grid" id="menuGrid"></div>
+      </div>
+
+    </div>
+
+    <!-- ─────────────────────────────
+         PANEL: INVENTORY
+    ───────────────────────────── -->
+    <div class="panel" id="panel-inventory">
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><i class="fas fa-boxes-stacked" style="color:var(--purple)"></i> Daily Inventory Management</div>
+          <div class="card-actions">
+            <button class="hd-btn" onclick="showToast('Stock reset for today!','s')"><i class="fas fa-redo"></i> Reset Today's Stock</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Daily Limit</th>
+                <th>Sold Today</th>
+                <th>Remaining</th>
+                <th>Status</th>
+                <th>Edit Limit</th>
+              </tr>
+            </thead>
+            <tbody id="invTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─────────────────────────────
+         PANEL: SLOT MANAGEMENT
+    ───────────────────────────── -->
+    <div class="panel" id="panel-slots">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head">
+          <div class="card-title"><i class="far fa-clock" style="color:var(--blue)"></i> Pickup Slot Control</div>
+          <div class="card-actions">
+            <button class="hd-btn" onclick="resetAllSlots()"><i class="fas fa-redo"></i> Reset All</button>
+            <button class="hd-btn primary" onclick="saveSlots()"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </div>
+        <div style="padding:12px 18px;background:var(--blue-l);border-bottom:1px solid #d0e8f8;font-size:13px;color:var(--blue)">
+          <i class="fas fa-info-circle" style="margin-right:6px"></i>
+          Blocked slots will not appear for students during ordering. Max capacity controls how many students can book the same slot.
+        </div>
+        <div style="padding:18px" id="slotPanelBody"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end shell -->
+
+<!-- ═══════════════════════════
+     EDIT / ADD ITEM MODAL
+═══════════════════════════ -->
+<div class="modal-backdrop" id="itemModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Add New Item</div>
+      <button class="modal-close" onclick="closeModal('itemModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Item Name <span>*</span></label>
+          <input class="inp" id="m-name" placeholder="e.g. Chicken Biryani">
+        </div>
+        <div class="field">
+          <label>Price (₹) <span>*</span></label>
+          <input class="inp" id="m-price" type="number" placeholder="e.g. 150">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category <span>*</span></label>
+          <select class="inp" id="m-cat">
+            <option value="">Select Category</option>
+            <option>Meals</option><option>Snacks</option><option>Fast Food</option>
+            <option>Beverages</option><option>Maggi</option>
+            <option>Fresh Juice</option><option>Shakes / Smoothies</option>
+            <option>Fruit Bowls</option><option>Quick Shots</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Type <span>*</span></label>
+          <select class="inp" id="m-veg">
+            <option value="1">🟢 Vegetarian</option>
+            <option value="0">🔴 Non-Vegetarian</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea class="inp ta" id="m-desc" placeholder="Short description of this item..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Daily Stock Limit <span>*</span></label>
+          <input class="inp" id="m-stock" type="number" placeholder="e.g. 60" value="60">
+        </div>
+        <div class="field">
+          <label>Availability</label>
+          <select class="inp" id="m-avail">
+            <option value="1">✅ Available</option>
+            <option value="0">❌ Unavailable</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Image URL</label>
+        <input class="inp" id="m-img" placeholder="https://images.unsplash.com/...">
+      </div>
+      <div class="field">
+        <label>Badge</label>
+        <select class="inp" id="m-badge">
+          <option value="">None</option>
+          <option value="bs">🔥 Bestseller</option>
+          <option value="sp">⭐ Today's Special</option>
+          <option value="nw">🆕 New</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal('itemModal')">Cancel</button>
+      <button class="modal-btn save" onclick="saveItem()"><i class="fas fa-save"></i> Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal-backdrop" id="orderModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="orderModalTitle">Order Details</div>
+      <button class="modal-close" onclick="closeModal('orderModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="orderModalBody"></div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal('orderModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="tr"></div>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+/* ─────────────────────────────
+   DATA
+───────────────────────────── */
+const API_BASE = 'http://localhost:3000';
+const OUTLET_INFO = {
+  0:{name:'All Outlets',  color:'var(--pri)',   colorL:'#e8f0eb'},
+  1:{name:'Canteen 1',    color:'var(--c1)',    colorL:'var(--c1l)'},
+  2:{name:'Canteen 2',    color:'var(--c2)',    colorL:'var(--c2l)'},
+  3:{name:'Cafeteria',    color:'var(--cf)',    colorL:'var(--cfl)'},
+  4:{name:'Juice Point',  color:'var(--jp)',    colorL:'var(--jpl)'},
+};
+
+let currentOutlet = 1;
+let adminToken = '';
+
+/* ─────────────────────────────────────────
+   ALL OUTLET MENU ITEMS  (55 items total)
+───────────────────────────────────────── */
+const ALL_MENU_ITEMS = {
+  1:[
+    // Fast Food
+    {id:101,name:'Veg Noodles',cat:'Fast Food',price:70,isVeg:true,avail:true,badge:'',stock:50,sold:12,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:102,name:'Egg Noodles',cat:'Fast Food',price:80,isVeg:false,avail:true,badge:'',stock:45,sold:10,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:103,name:'Veg Fried Rice',cat:'Fast Food',price:80,isVeg:true,avail:true,badge:'bs',stock:50,sold:16,img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=300&h=220&fit=crop'},
+    {id:104,name:'Egg Fried Rice',cat:'Fast Food',price:90,isVeg:false,avail:true,badge:'',stock:45,sold:14,img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&h=220&fit=crop'},
+    {id:105,name:'Veg Manchuria',cat:'Fast Food',price:80,isVeg:true,avail:true,badge:'',stock:40,sold:11,img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&h=220&fit=crop'},
+    {id:106,name:'Chicken Manchuria',cat:'Fast Food',price:110,isVeg:false,avail:true,badge:'bs',stock:35,sold:9,img:'https://images.unsplash.com/photo-1567337710282-00832b415979?w=300&h=220&fit=crop'},
+    {id:107,name:'Paneer Noodles',cat:'Fast Food',price:90,isVeg:true,avail:true,badge:'',stock:40,sold:8,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:108,name:'Paneer Fried Rice',cat:'Fast Food',price:90,isVeg:true,avail:true,badge:'',stock:40,sold:7,img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=300&h=220&fit=crop'},
+    {id:109,name:'Gobi Manchuria',cat:'Fast Food',price:80,isVeg:true,avail:true,badge:'',stock:40,sold:10,img:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&h=220&fit=crop'},
+    {id:110,name:'Egg Manchuria',cat:'Fast Food',price:90,isVeg:false,avail:true,badge:'',stock:35,sold:8,img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&h=220&fit=crop'},
+    // Tiffins
+    {id:111,name:'Idli',cat:'Tiffins',price:30,isVeg:true,avail:true,badge:'',stock:80,sold:30,img:'https://images.unsplash.com/photo-1630383249896-424e482df921?w=300&h=220&fit=crop'},
+    {id:112,name:'Vada',cat:'Tiffins',price:30,isVeg:true,avail:true,badge:'',stock:70,sold:25,img:'https://images.unsplash.com/photo-1630383249896-424e482df921?w=300&h=220&fit=crop'},
+    {id:113,name:'Dosa',cat:'Tiffins',price:40,isVeg:true,avail:true,badge:'bs',stock:60,sold:22,img:'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=300&h=220&fit=crop'},
+    {id:114,name:'Puri',cat:'Tiffins',price:40,isVeg:true,avail:true,badge:'',stock:50,sold:15,img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=220&fit=crop'},
+    {id:115,name:'Chapati',cat:'Tiffins',price:40,isVeg:true,avail:true,badge:'',stock:60,sold:18,img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=220&fit=crop'},
+    // Meals
+    {id:116,name:'Veg Meals',cat:'Meals',price:100,isVeg:true,avail:true,badge:'sp',stock:30,sold:8,img:'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=220&fit=crop'},
+    {id:117,name:'Chicken Biryani',cat:'Meals',price:140,isVeg:false,avail:true,badge:'bs',stock:40,sold:18,img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&h=220&fit=crop'},
+    {id:118,name:'Egg Biryani',cat:'Meals',price:120,isVeg:false,avail:true,badge:'',stock:35,sold:12,img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&h=220&fit=crop'},
+    {id:119,name:'Veg Biryani',cat:'Meals',price:110,isVeg:true,avail:true,badge:'',stock:35,sold:10,img:'https://images.unsplash.com/photo-1536304993881-ff86e0c9b9aa?w=300&h=220&fit=crop'},
+    {id:120,name:'Curd',cat:'Meals',price:50,isVeg:true,avail:true,badge:'',stock:60,sold:20,img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300&h=220&fit=crop'},
+  ],
+  2:[
+    // Rolls
+    {id:201,name:'Egg Roll',cat:'Rolls',price:60,isVeg:false,avail:true,badge:'bs',stock:50,sold:18,img:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300&h=220&fit=crop'},
+    {id:202,name:'Chicken Roll',cat:'Rolls',price:80,isVeg:false,avail:true,badge:'bs',stock:40,sold:14,img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=300&h=220&fit=crop'},
+    {id:203,name:'Paneer Roll',cat:'Rolls',price:70,isVeg:true,avail:true,badge:'',stock:40,sold:11,img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=300&h=220&fit=crop'},
+    {id:204,name:'Veg Roll',cat:'Rolls',price:60,isVeg:true,avail:true,badge:'',stock:50,sold:15,img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=300&h=220&fit=crop'},
+    {id:205,name:'Double Egg Roll',cat:'Rolls',price:80,isVeg:false,avail:true,badge:'',stock:35,sold:10,img:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300&h=220&fit=crop'},
+    // Fast Food
+    {id:206,name:'Veg Noodles',cat:'Fast Food',price:70,isVeg:true,avail:true,badge:'',stock:45,sold:12,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:207,name:'Egg Noodles',cat:'Fast Food',price:80,isVeg:false,avail:true,badge:'',stock:40,sold:9,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:208,name:'Veg Fried Rice',cat:'Fast Food',price:80,isVeg:true,avail:true,badge:'',stock:40,sold:11,img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=300&h=220&fit=crop'},
+    {id:209,name:'Egg Fried Rice',cat:'Fast Food',price:90,isVeg:false,avail:true,badge:'',stock:35,sold:8,img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&h=220&fit=crop'},
+    {id:210,name:'Veg Manchuria',cat:'Fast Food',price:80,isVeg:true,avail:true,badge:'',stock:40,sold:9,img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=300&h=220&fit=crop'},
+  ],
+  3:[
+    // Coffee
+    {id:301,name:'Coffee',cat:'Coffee',price:20,isVeg:true,avail:true,badge:'',stock:100,sold:35,img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=220&fit=crop'},
+    {id:302,name:'Filter Coffee',cat:'Coffee',price:25,isVeg:true,avail:true,badge:'bs',stock:80,sold:28,img:'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=300&h=220&fit=crop'},
+    {id:303,name:'Black Coffee',cat:'Coffee',price:20,isVeg:true,avail:true,badge:'',stock:80,sold:20,img:'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&h=220&fit=crop'},
+    {id:304,name:'Cold Coffee',cat:'Coffee',price:40,isVeg:true,avail:true,badge:'bs',stock:60,sold:22,img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&h=220&fit=crop'},
+    {id:305,name:'Bru Coffee',cat:'Coffee',price:20,isVeg:true,avail:true,badge:'',stock:80,sold:18,img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&h=220&fit=crop'},
+    // Tea
+    {id:306,name:'Tea',cat:'Tea',price:15,isVeg:true,avail:true,badge:'',stock:100,sold:40,img:'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=300&h=220&fit=crop'},
+    {id:307,name:'Masala Tea',cat:'Tea',price:20,isVeg:true,avail:true,badge:'bs',stock:80,sold:32,img:'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=300&h=220&fit=crop'},
+    {id:308,name:'Ginger Tea',cat:'Tea',price:20,isVeg:true,avail:true,badge:'',stock:70,sold:24,img:'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=300&h=220&fit=crop'},
+    {id:309,name:'Lemon Tea',cat:'Tea',price:20,isVeg:true,avail:true,badge:'',stock:60,sold:18,img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&h=220&fit=crop'},
+    {id:310,name:'Green Tea',cat:'Tea',price:25,isVeg:true,avail:true,badge:'',stock:50,sold:14,img:'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=300&h=220&fit=crop'},
+    // Maggi
+    {id:311,name:'Plain Maggi',cat:'Maggi',price:40,isVeg:true,avail:true,badge:'',stock:60,sold:20,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:312,name:'Egg Maggi',cat:'Maggi',price:50,isVeg:false,avail:true,badge:'bs',stock:50,sold:18,img:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300&h=220&fit=crop'},
+    {id:313,name:'Veg Maggi',cat:'Maggi',price:50,isVeg:true,avail:true,badge:'',stock:50,sold:16,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+    {id:314,name:'Cheese Maggi',cat:'Maggi',price:60,isVeg:true,avail:true,badge:'sp',stock:40,sold:14,img:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&h=220&fit=crop'},
+    {id:315,name:'Masala Maggi',cat:'Maggi',price:45,isVeg:true,avail:true,badge:'',stock:50,sold:15,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&h=220&fit=crop'},
+  ],
+  4:[
+    // Milk
+    {id:401,name:'Badam Milk',cat:'Milk',price:40,isVeg:true,avail:true,badge:'bs',stock:50,sold:18,img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=220&fit=crop'},
+    {id:402,name:'Chocolate Milk',cat:'Milk',price:40,isVeg:true,avail:true,badge:'',stock:50,sold:15,img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=220&fit=crop'},
+    {id:403,name:'Rose Milk',cat:'Milk',price:35,isVeg:true,avail:true,badge:'',stock:50,sold:14,img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=220&fit=crop'},
+    {id:404,name:'Strawberry Milk',cat:'Milk',price:40,isVeg:true,avail:true,badge:'',stock:45,sold:12,img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=220&fit=crop'},
+    {id:405,name:'Kesar Milk',cat:'Milk',price:45,isVeg:true,avail:true,badge:'sp',stock:40,sold:10,img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=220&fit=crop'},
+    // Fruits
+    {id:406,name:'Fruit Salad',cat:'Fruits',price:60,isVeg:true,avail:true,badge:'',stock:30,sold:10,img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=300&h=220&fit=crop'},
+    {id:407,name:'Fruit Salad with Ice Cream',cat:'Fruits',price:80,isVeg:true,avail:true,badge:'bs',stock:25,sold:8,img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=300&h=220&fit=crop'},
+    // Juice
+    {id:408,name:'Apple Juice',cat:'Juice',price:50,isVeg:true,avail:true,badge:'',stock:40,sold:14,img:'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=300&h=220&fit=crop'},
+    {id:409,name:'Mango Juice',cat:'Juice',price:50,isVeg:true,avail:true,badge:'bs',stock:40,sold:16,img:'https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=300&h=220&fit=crop'},
+    {id:410,name:'Orange Juice',cat:'Juice',price:50,isVeg:true,avail:true,badge:'',stock:35,sold:12,img:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&h=220&fit=crop'},
+  ],
+};
+
+/* ─────────────────────────────────────────
+   ALL OUTLET DEMO ORDERS
+───────────────────────────────────────── */
+const ALL_ORDERS_DATA = {
+  1:[
+    {token:42,id:'QB-042',student:'Riya Sharma',rollNo:'21CS042',items:[{n:'Chicken Biryani',q:1,p:140},{n:'Veg Fried Rice',q:1,p:80}],total:220,slot:'11:20 AM',time:'11:04 AM',status:'preparing',outlet:1},
+    {token:43,id:'QB-043',student:'Arjun Reddy',rollNo:'21EC043',items:[{n:'Dosa',q:2,p:40},{n:'Idli',q:1,p:30}],total:110,slot:'11:20 AM',time:'11:06 AM',status:'pending',outlet:1},
+    {token:44,id:'QB-044',student:'Priya Nair',rollNo:'22CS044',items:[{n:'Veg Meals',q:1,p:100}],total:100,slot:'11:30 AM',time:'11:07 AM',status:'pending',outlet:1},
+    {token:45,id:'QB-045',student:'Mohammed Ali',rollNo:'21ME045',items:[{n:'Chicken Manchuria',q:1,p:110},{n:'Egg Noodles',q:1,p:80}],total:190,slot:'11:30 AM',time:'11:09 AM',status:'preparing',outlet:1},
+    {token:38,id:'QB-038',student:'Sneha Kulkarni',rollNo:'21CS038',items:[{n:'Egg Biryani',q:1,p:120}],total:120,slot:'11:10 AM',time:'10:52 AM',status:'ready',outlet:1},
+    {token:30,id:'QB-030',student:'Kiran Babu',rollNo:'22IT030',items:[{n:'Chicken Biryani',q:2,p:140}],total:280,slot:'10:50 AM',time:'10:31 AM',status:'completed',outlet:1},
+    {token:31,id:'QB-031',student:'Divya Menon',rollNo:'21CS031',items:[{n:'Veg Biryani',q:1,p:110},{n:'Curd',q:1,p:50}],total:160,slot:'11:00 AM',time:'10:44 AM',status:'completed',outlet:1},
+    {token:32,id:'QB-032',student:'Rahul Singh',rollNo:'20ME032',items:[{n:'Gobi Manchuria',q:2,p:80}],total:160,slot:'11:00 AM',time:'10:45 AM',status:'cancelled',outlet:1},
+  ],
+  2:[
+    {token:12,id:'QB-C2-012',student:'Aditya Kumar',rollNo:'21ME012',items:[{n:'Chicken Roll',q:2,p:80},{n:'Egg Noodles',q:1,p:80}],total:240,slot:'11:10 AM',time:'10:58 AM',status:'preparing',outlet:2},
+    {token:13,id:'QB-C2-013',student:'Kavya Reddy',rollNo:'22CS013',items:[{n:'Paneer Roll',q:1,p:70},{n:'Veg Fried Rice',q:1,p:80}],total:150,slot:'11:10 AM',time:'11:02 AM',status:'pending',outlet:2},
+    {token:14,id:'QB-C2-014',student:'Sai Teja',rollNo:'21EC014',items:[{n:'Double Egg Roll',q:1,p:80}],total:80,slot:'11:20 AM',time:'11:05 AM',status:'pending',outlet:2},
+    {token:9,id:'QB-C2-009',student:'Harini Prasad',rollNo:'22IT009',items:[{n:'Veg Roll',q:2,p:60},{n:'Veg Manchuria',q:1,p:80}],total:200,slot:'11:00 AM',time:'10:48 AM',status:'ready',outlet:2},
+    {token:7,id:'QB-C2-007',student:'Nikhil Rao',rollNo:'21CS007',items:[{n:'Egg Roll',q:1,p:60}],total:60,slot:'10:50 AM',time:'10:35 AM',status:'completed',outlet:2},
+  ],
+  3:[
+    {token:21,id:'QB-CF-021',student:'Meghna Iyer',rollNo:'21CS021',items:[{n:'Cold Coffee',q:2,p:40},{n:'Cheese Maggi',q:1,p:60}],total:140,slot:'10:40 AM',time:'10:28 AM',status:'preparing',outlet:3},
+    {token:22,id:'QB-CF-022',student:'Rohit Varma',rollNo:'22ME022',items:[{n:'Masala Tea',q:1,p:20},{n:'Plain Maggi',q:1,p:40}],total:60,slot:'10:40 AM',time:'10:30 AM',status:'pending',outlet:3},
+    {token:23,id:'QB-CF-023',student:'Lakshmi Devi',rollNo:'21EC023',items:[{n:'Filter Coffee',q:2,p:25}],total:50,slot:'10:50 AM',time:'10:38 AM',status:'pending',outlet:3},
+    {token:18,id:'QB-CF-018',student:'Suresh Babu',rollNo:'22CS018',items:[{n:'Egg Maggi',q:1,p:50},{n:'Ginger Tea',q:1,p:20}],total:70,slot:'10:30 AM',time:'10:18 AM',status:'ready',outlet:3},
+    {token:14,id:'QB-CF-014',student:'Pooja Singh',rollNo:'21IT014',items:[{n:'Green Tea',q:1,p:25},{n:'Masala Maggi',q:1,p:45}],total:70,slot:'10:20 AM',time:'10:05 AM',status:'completed',outlet:3},
+  ],
+  4:[
+    {token:8,id:'QB-JP-008',student:'Anjali Nair',rollNo:'22CS008',items:[{n:'Mango Juice',q:2,p:50},{n:'Fruit Salad',q:1,p:60}],total:160,slot:'11:00 AM',time:'10:50 AM',status:'preparing',outlet:4},
+    {token:9,id:'QB-JP-009',student:'Vikram Pillai',rollNo:'21ME009',items:[{n:'Badam Milk',q:1,p:40},{n:'Kesar Milk',q:1,p:45}],total:85,slot:'11:00 AM',time:'10:52 AM',status:'pending',outlet:4},
+    {token:10,id:'QB-JP-010',student:'Deepika Raj',rollNo:'22EC010',items:[{n:'Fruit Salad with Ice Cream',q:1,p:80}],total:80,slot:'11:10 AM',time:'10:58 AM',status:'pending',outlet:4},
+    {token:6,id:'QB-JP-006',student:'Arun Krishnan',rollNo:'21CS006',items:[{n:'Apple Juice',q:1,p:50},{n:'Orange Juice',q:1,p:50}],total:100,slot:'10:50 AM',time:'10:38 AM',status:'ready',outlet:4},
+    {token:4,id:'QB-JP-004',student:'Swathi Reddy',rollNo:'22IT004',items:[{n:'Rose Milk',q:2,p:35}],total:70,slot:'10:40 AM',time:'10:25 AM',status:'completed',outlet:4},
+  ],
+};
+
+/* Active outlet data — set by initOutlet() */
+let MENU_ITEMS  = [];
+let ORDERS_DATA = [];
+
+
+/* ─────────────────────────────
+   PANEL SWITCHING
+───────────────────────────── */
+function showPanel(id, el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('on'));
+  if(el) el.classList.add('on');
+  const titles = {
+    orders:'Live Orders', menu:'Menu Management',
+    inventory:'Inventory', slots:'Slot Management'
+  };
+  document.getElementById('pageTitle').textContent = titles[id]||id;
+  const actions = {
+    menu:`<button class="hd-btn primary" onclick="openAddItemModal()"><i class="fas fa-plus"></i> Add Item</button>`,
+    orders:`<button class="hd-btn" onclick="showToast('Exporting orders as CSV…','')"><i class="fas fa-download"></i> Export</button>`,
+  };
+  document.getElementById('headerAction').outerHTML = `<div id="headerAction">${actions[id]||''}</div>`;
+  if(id==='orders') renderOrdersTable('all');
+  if(id==='menu') renderMenuGrid();
+  if(id==='inventory') renderInventory();
+  if(id==='slots') renderSlotPanel();
+}
+
+/* ─────────────────────────────
+   OUTLET SWITCH
+───────────────────────────── */
+async function initOutlet(){
+  // Read outlet set during admin login
+  adminToken = localStorage.getItem('qb_admin_token') || '';
+  if (!adminToken) {
+    localStorage.removeItem('qb_admin_outlet');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const stored = localStorage.getItem('qb_admin_outlet');
+  currentOutlet = stored ? parseInt(stored) : 1;
+  const o = OUTLET_INFO[currentOutlet] || OUTLET_INFO[1];
+
+  // Load this outlet's fallback data first; API response will replace this.
+  MENU_ITEMS  = ALL_MENU_ITEMS[currentOutlet]  || ALL_MENU_ITEMS[1];
+  ORDERS_DATA = ALL_ORDERS_DATA[currentOutlet] || ALL_ORDERS_DATA[1];
+
+  document.getElementById('sbRole').textContent = `Admin — ${o.name}`;
+  document.getElementById('outletLabelSb').textContent = o.name;
+  const dotColors = {1:'#e74c3c',2:'#2980b9',3:'#8e44ad',4:'#27ae60'};
+  document.getElementById('outletDotSb').style.background = dotColors[currentOutlet] || '#f5a623';
+  document.getElementById('headerPill').style.background = o.colorL;
+  document.getElementById('headerPill').style.color = o.color;
+  document.getElementById('headerPill').innerHTML =
+    `<span class="live-dot" style="background:var(--green)"></span>${o.name} · Open`;
+
+  await Promise.all([loadMenuFromAPI(), loadOrdersFromAPI()]);
+}
+
+async function loadMenuFromAPI(){
+  try {
+    const data = await apiFetch(`/api/menu/${currentOutlet}`);
+    if (!data.success || !Array.isArray(data.menu)) return;
+
+    MENU_ITEMS = data.menu.map(item => ({
+      id: item.id,
+      name: item.name,
+      cat: item.category,
+      price: Number(item.price),
+      isVeg: item.is_veg === 1,
+      avail: item.is_available === 1,
+      badge: item.badge || '',
+      stock: Number(item.daily_stock || 0),
+      sold: Number(item.sold_today || 0),
+      img: item.img_url || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&h=220&fit=crop',
+    }));
+
+    renderMenuGrid();
+    renderInventory();
+  } catch (err) {
+    console.warn('Menu API failed, using fallback data', err.message);
+  }
+}
+
+function formatOrderTime(ts){
+  const dt = new Date(ts);
+  return dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function parseItemsSummary(summary){
+  if (!summary) return [];
+  return summary.split(',').map(part => {
+    const raw = part.trim();
+    const chunks = raw.split(' x');
+    const n = chunks[0] || raw;
+    const q = parseInt(chunks[1] || '1', 10) || 1;
+    return { n, q, p: 0 };
+  });
+}
+
+async function loadOrdersFromAPI(){
+  try {
+    const data = await apiFetch(`/api/orders/live/${currentOutlet}`);
+    if (!data.success || !Array.isArray(data.orders)) return;
+
+    ORDERS_DATA = data.orders.map((o, idx) => {
+      const token = String(o.token_number || idx + 1);
+      return {
+        token,
+        id: o.order_code,
+        student: o.student,
+        rollNo: o.rollNo,
+        items: parseItemsSummary(o.items_summary),
+        total: Number(o.total || 0),
+        slot: o.slot,
+        time: formatOrderTime(o.placed_at),
+        status: o.status,
+        outlet: currentOutlet,
+      };
+    });
+
+    renderOrdersTable(orderFilter || 'all');
+  } catch (err) {
+    if (String(err.message || '').toLowerCase().includes('token')) {
+      localStorage.removeItem('qb_admin_token');
+      window.location.href = 'login.html';
+      return;
+    }
+    console.warn('Orders API failed, using fallback data', err.message);
+  }
+}
+
+
+
+/* ─────────────────────────────
+   ORDERS TABLE
+───────────────────────────── */
+let orderFilter = 'all';
+function filterOrders(status, el){
+  if(status) orderFilter = status;
+  if(el){
+    document.querySelectorAll('.ftab').forEach(f=>f.classList.remove('on'));
+    el.classList.add('on');
+  }
+  renderOrdersTable(orderFilter);
+}
+
+function renderOrdersTable(filter){
+  const q = (document.getElementById('orderSearch')?.value||'').toLowerCase();
+  let data = ORDERS_DATA.filter(o=>{
+    if(filter && filter!=='all' && o.status!==filter) return false;
+    if(q && !o.student.toLowerCase().includes(q) && !String(o.token).includes(q) && !o.id.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const counts = {all:ORDERS_DATA.length};
+  ['pending','preparing','ready','completed','cancelled'].forEach(s=>{counts[s]=ORDERS_DATA.filter(o=>o.status===s).length});
+  document.getElementById('cnt-all').textContent = `(${ORDERS_DATA.length})`;
+  const liveC = ORDERS_DATA.filter(o=>['pending','preparing','ready'].includes(o.status)).length;
+  const lcEl = document.getElementById('liveCount'); if(lcEl) lcEl.textContent = liveC;
+  document.getElementById('ordersTbody').innerHTML = data.map(o=>orderRowHTML(o,false)).join('');
+}
+
+function orderRowHTML(o, mini){
+  const sdot = {pending:'var(--orange)',preparing:'var(--blue)',ready:'var(--green)',completed:'var(--muted)',cancelled:'var(--red)'};
+  const items_s = o.items.map(i=>`${i.n} ×${i.q}`).join(', ');
+  const acts = {
+    pending:`<button class="act-btn prep" onclick="updateStatus('${o.token}','preparing')"><i class="fas fa-fire"></i> Prepare</button>`,
+    preparing:`<button class="act-btn ready" onclick="updateStatus('${o.token}','ready')"><i class="fas fa-bell"></i> Mark Ready</button>`,
+    ready:`<button class="act-btn collect" onclick="markCollected('${o.token}')"><i class="fas fa-hand-holding"></i> Order Collected</button>`,
+    completed:'',cancelled:''
+  };
+  return `<tr id="orow-${o.token}">
+    <td><div class="token-chip${o.status==='completed'?' collected':''}" id="tc-${o.token}">${o.token}</div></td>
+    <td style="font-family:'Sora',sans-serif;font-weight:700">${o.id}</td>
+    <td><div style="font-size:13px;font-weight:600">${o.student}</div><div style="font-size:11px;color:var(--muted)">${o.rollNo}</div></td>
+    <td><div class="items-mini">${o.items.map(i=>`<span>${i.n} ×${i.q}</span>`).join('')}</div></td>
+    <td style="font-family:'Sora',sans-serif;font-weight:800;color:var(--red)">₹${o.total}</td>
+    <td style="font-weight:700">${o.slot}</td>
+    <td style="color:var(--muted)">${o.time}</td>
+    <td><span class="spill ${o.status}"><span class="sp-dot" style="background:${sdot[o.status]}"></span>${o.status}</span></td>
+    <td>
+      <div class="tbl-act">
+        ${acts[o.status]||''}
+        <button class="act-btn view" onclick="viewOrder(${o.token})"><i class="fas fa-eye"></i></button>
+        ${['pending','preparing'].includes(o.status)?`<button class="act-btn cancel" onclick="updateStatus(${o.token},'cancelled')"><i class="fas fa-times"></i></button>`:''}
+      </div>
+    </td>
+  </tr>`;
+}
+
+async function updateStatus(token, newStatus){
+  const o = ORDERS_DATA.find(x=>x.token===token);
+  if(!o) return;
+  try {
+    const data = await apiFetch(`/api/orders/${o.id}/status`, 'PUT', { status: newStatus });
+    if (!data.success) throw new Error(data.message || 'Status update failed');
+
+    o.status = newStatus;
+    const msgs = {preparing:`Token #${token} — Preparing!`,ready:`Token #${token} — Marked Ready 🔔`,cancelled:`Order #${token} cancelled`,completed:`Token #${token} collected`};
+    showToast(msgs[newStatus]||'Status updated', newStatus==='cancelled'?'e':'s');
+    renderOrdersTable(orderFilter);
+    const _ac=document.getElementById('st-active'); if(_ac) _ac.textContent = ORDERS_DATA.filter(o=>['pending','preparing','ready'].includes(o.status)).length;
+  } catch (err) {
+    showToast(err.message || 'Could not update status', 'e');
+  }
+}
+
+function markCollected(token){
+  updateStatus(token, 'completed');
+}
+
+function viewOrder(token){
+  const o = ORDERS_DATA.find(x=>x.token===token);
+  if(!o) return;
+  document.getElementById('orderModalTitle').textContent = `Order #${o.id} — Token ${o.token}`;
+  document.getElementById('orderModalBody').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div><div style="font-size:13px;font-weight:700">${o.student}</div><div style="font-size:11px;color:var(--muted)">${o.rollNo} · Placed at ${o.time}</div></div>
+      <span class="spill ${o.status}">${o.status}</span>
+    </div>
+    <div style="background:#f8f8f8;border-radius:8px;padding:12px;margin-bottom:12px">
+      ${o.items.map(i=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid #eee">
+        <span>${i.n} <span style="color:var(--muted)">×${i.q}</span></span>
+        <strong>₹${i.p*i.q}</strong></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:800;padding-top:9px;margin-top:4px">
+        <span>Total</span><span style="color:var(--red)">₹${o.total}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px">
+      <div style="flex:1;background:var(--acc-l);border-radius:6px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--muted)">PICKUP SLOT</div>
+        <div style="font-weight:800;font-size:16px;color:var(--pri)">${o.slot}</div>
+      </div>
+      <div style="flex:1;background:var(--green-l);border-radius:6px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--muted)">TOKEN</div>
+        <div style="font-weight:800;font-size:22px;color:var(--green)">#${o.token}</div>
+      </div>
+    </div>`;
+  openModal('orderModal');
+}
+
+/* ─────────────────────────────
+   MENU GRID
+───────────────────────────── */
+function renderMenuGrid(){
+  const q = (document.getElementById('menuSearch')?.value||'').toLowerCase();
+  const items = MENU_ITEMS.filter(i=>!q||i.name.toLowerCase().includes(q)||i.cat.toLowerCase().includes(q));
+  document.getElementById('menuGrid').innerHTML = items.map(item=>{
+    const rem = item.stock - item.sold;
+    const pct = Math.round((rem/item.stock)*100);
+    const sc  = pct>50?'var(--green)':pct>20?'#e67e22':'var(--red)';
+    return `<div class="menu-item-card">
+      <div class="mic-img">
+        <img src="${item.img}" alt="${item.name}" loading="lazy">
+        <span class="mic-avail ${item.avail?'on':'off'}">${item.avail?'Available':'Unavailable'}</span>
+        ${item.special?`<span class="mic-special">⭐ Special</span>`:''}
+        <div class="mic-veg"><div class="ivdot ${item.isVeg?'v':'nv'}"></div></div>
+      </div>
+      <div class="mic-body">
+        <div class="mic-name">${item.name}</div>
+        <div class="mic-cat">${item.cat}</div>
+        <div class="mic-stock-bar"><div class="mic-stock-fill" style="width:${pct}%;background:${sc}"></div></div>
+        <div class="mic-row">
+          <span class="mic-price">₹${item.price}</span>
+          <div class="stock-edit">
+            <span style="font-size:11px;color:var(--muted)">Stock:</span>
+            <input class="stock-inp" value="${rem}" id="si-${item.id}" onchange="updateStock(${item.id},this.value)">
+          </div>
+        </div>
+        <div class="mic-actions">
+          <button class="mic-act edit" onclick="editItem(${item.id})"><i class="fas fa-pen"></i> Edit</button>
+          <button class="mic-act tog ${item.avail?'':'off'}" onclick="toggleAvail(${item.id})">
+            ${item.avail?'<i class="fas fa-eye-slash"></i> Disable':'<i class="fas fa-eye"></i> Enable'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterMenuItems(){renderMenuGrid()}
+
+function toggleAvail(id){
+  const item = MENU_ITEMS.find(i=>i.id===id);
+  if(!item) return;
+  item.avail = !item.avail;
+  renderMenuGrid();
+  showToast(`${item.name} is now ${item.avail?'Available':'Unavailable'}`,item.avail?'s':'e');
+}
+
+function updateStock(id, val){
+  const item = MENU_ITEMS.find(i=>i.id===id);
+  if(!item) return;
+  const rem = parseInt(val)||0;
+  item.stock = item.sold + rem;
+  if(rem <= 0){ item.avail = false; showToast(`${item.name} out of stock — Add to cart disabled`,'e'); }
+  showToast(`Stock updated: ${item.name} — ${rem} remaining`,'s');
+  renderInventory();
+}
+
+function editItem(id){
+  const item = MENU_ITEMS.find(i=>i.id===id);
+  if(!item) return;
+  document.getElementById('modalTitle').textContent = 'Edit Item';
+  document.getElementById('m-name').value  = item.name;
+  document.getElementById('m-price').value = item.price;
+  document.getElementById('m-cat').value   = item.cat;
+  document.getElementById('m-veg').value   = item.isVeg?'1':'0';
+  document.getElementById('m-stock').value = item.stock;
+  document.getElementById('m-avail').value = item.avail?'1':'0';
+  document.getElementById('m-img').value   = item.img;
+  document.getElementById('m-badge').value = item.badge||'';
+  openModal('itemModal');
+}
+
+function openAddItemModal(){
+  document.getElementById('modalTitle').textContent = 'Add New Item';
+  ['m-name','m-price','m-desc','m-img'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m-cat').value='';
+  document.getElementById('m-veg').value='1';
+  document.getElementById('m-stock').value='60';
+  document.getElementById('m-avail').value='1';
+  document.getElementById('m-badge').value='';
+  openModal('itemModal');
+}
+
+function saveItem(){
+  const name = document.getElementById('m-name').value.trim();
+  const price = parseInt(document.getElementById('m-price').value)||0;
+  if(!name||!price){ showToast('Name and price are required','e'); return; }
+  closeModal('itemModal');
+  showToast(`"${name}" saved successfully`,'s');
+  renderMenuGrid();
+}
+
+/* ─────────────────────────────
+   INVENTORY
+───────────────────────────── */
+function renderInventory(){
+  const tbody = document.getElementById('invTbody');
+  const lowItems = MENU_ITEMS.filter(i=>{const r=i.stock-i.sold; return r>=0&&r<=10&&i.stock>0;}).length;
+  document.getElementById('lowCount').textContent = lowItems;
+  tbody.innerHTML = MENU_ITEMS.map(item=>{
+    const rem  = item.stock - item.sold;
+    const pct  = item.stock>0 ? Math.round((rem/item.stock)*100) : 0;
+    const sc   = pct>50?'var(--green)':pct>20?'#e67e22':'var(--red)';
+    const tag  = rem<=0
+      ? `<span class="out-tag">Out of Stock</span>`
+      : rem<=10
+        ? `<span class="low-tag">Low Stock</span>`
+        : `<span style="font-size:11px;color:var(--green);font-weight:700">✓ OK</span>`;
+    return `<tr>
+      <td><strong>${item.name}</strong></td>
+      <td><span style="font-size:11px;background:var(--brd-l);padding:2px 7px;border-radius:8px;color:var(--txt2)">${item.cat}</span></td>
+      <td style="font-weight:700">${item.stock}</td>
+      <td style="color:var(--red);font-weight:700">${item.sold}</td>
+      <td>
+        <div class="inv-stock-wrap">
+          <div class="inv-bar"><div class="inv-fill" style="width:${pct}%;background:${sc}"></div></div>
+          <span class="inv-num" style="color:${sc}">${rem}</span>
+        </div>
+      </td>
+      <td>${tag}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input class="inv-inp" id="inv-${item.id}" type="number" value="${item.stock}" min="0">
+          <button class="inv-save" onclick="setDailyLimit(${item.id})">Set</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setDailyLimit(id){
+  const item = MENU_ITEMS.find(i=>i.id===id);
+  const newLimit = parseInt(document.getElementById('inv-'+id).value)||0;
+  if(!item||newLimit<0){ showToast('Invalid value','e'); return; }
+  item.stock = newLimit;
+  if(newLimit === 0){ item.avail = false; showToast(`${item.name} — Disabled (limit set to 0)`,'e'); }
+  else showToast(`Daily limit for "${item.name}" set to ${newLimit}`,'s');
+  renderInventory();
+}
+
+/* ─────────────────────────────
+   TODAY'S SPECIAL
+───────────────────────────── */
+const OUTLET_MENU_PREVIEW = {
+  1:{name:'Canteen 1',color:'var(--c1)',items:[
+    {id:101,name:'Chicken Biryani',price:150,img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=84&h=76&fit=crop'},
+    {id:103,name:'Masala Dosa',price:60,img:'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=84&h=76&fit=crop'},
+    {id:107,name:'Veg Thali',price:90,img:'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=84&h=76&fit=crop'},
+    {id:119,name:'Paneer Kathi Roll',price:80,img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=84&h=76&fit=crop'},
+    {id:125,name:'Chicken Burger',price:90,img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=84&h=76&fit=crop'},
+  ]},
+  2:{name:'Canteen 2',color:'var(--c2)',items:[
+    {id:201,name:'Veg Momos (6 pcs)',price:50,img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=84&h=76&fit=crop'},
+    {id:205,name:'Paneer Tikka',price:70,img:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=84&h=76&fit=crop'},
+    {id:209,name:'Butter Naan + Paneer Curry',price:130,img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=84&h=76&fit=crop'},
+    {id:216,name:'Chicken Burger',price:90,img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=84&h=76&fit=crop'},
+  ]},
+  3:{name:'Cafeteria',color:'var(--cf)',items:[
+    {id:302,name:'Hazelnut Cold Coffee',price:55,img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=84&h=76&fit=crop'},
+    {id:305,name:'Kit-Kat Thick Shake',price:80,img:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=84&h=76&fit=crop'},
+    {id:318,name:'Peri-Peri Spicy Maggi',price:45,img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=84&h=76&fit=crop'},
+    {id:307,name:'Hot Cutting Chai',price:15,img:'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=84&h=76&fit=crop'},
+  ]},
+  4:{name:'Juice Point',color:'var(--jp)',items:[
+    {id:405,name:'ABC Juice',price:80,img:'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=84&h=76&fit=crop'},
+    {id:408,name:'Avocado Energy Blast',price:110,img:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=84&h=76&fit=crop'},
+    {id:411,name:'Exotic Tropical Fruit Bowl',price:90,img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=84&h=76&fit=crop'},
+    {id:407,name:'Mango Banana Smoothie',price:65,img:'https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=84&h=76&fit=crop'},
+  ]},
+};
+
+// Track selected specials
+const selectedSpecials = {1:new Set([101,103,107]),2:new Set([201,209]),3:new Set([302,305,318]),4:new Set([405,408])};
+
+function renderSpecials(){
+  const grid = document.getElementById('specialGrid');
+  grid.innerHTML = [1,2,3,4].map(oid=>{
+    const o = OUTLET_MENU_PREVIEW[oid];
+    const sel = selectedSpecials[oid];
+    return `<div class="special-outlet-card">
+      <div class="soc-head">
+        <div class="soc-outlet"><span class="soc-dot" style="background:${o.color}"></span>${o.name}</div>
+        <span class="soc-count">${sel.size}/3 selected</span>
+      </div>
+      <div class="soc-body">
+        ${o.items.map(item=>`
+          <div class="special-item-row${sel.has(item.id)?' set':''}" id="srow-${oid}-${item.id}">
+            <img class="si-img" src="${item.img}" alt="${item.name}" loading="lazy">
+            <span class="si-name">${item.name}</span>
+            <span class="si-price">₹${item.price}</span>
+            <button class="si-star-btn${sel.has(item.id)?' on':''}" onclick="toggleSpecial(${oid},${item.id},this)">⭐</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSpecial(oid, itemId, btn){
+  const sel = selectedSpecials[oid];
+  if(sel.has(itemId)){
+    sel.delete(itemId);
+    btn.classList.remove('on');
+    document.getElementById(`srow-${oid}-${itemId}`).classList.remove('set');
+  } else {
+    if(sel.size >= 3){ showToast('Max 3 specials per outlet','e'); return; }
+    sel.add(itemId);
+    btn.classList.add('on');
+    document.getElementById(`srow-${oid}-${itemId}`).classList.add('set');
+  }
+  renderSpecials();
+}
+
+function saveSpecials(){
+  showToast("Today's Special saved for all outlets! Homepage updated.",'s');
+}
+
+/* ─────────────────────────────
+   SLOT MANAGEMENT
+───────────────────────────── */
+const SLOT_CONFIG = (()=>{
+  const slots = [];
+  for(let h=8;h<17;h++){
+    for(let m=0;m<60;m+=10){
+      const hh=String(h).padStart(2,'0'), mm=String(m).padStart(2,'0');
+      const dh=h>12?h-12:h, suf=h<12?'AM':'PM';
+      slots.push({
+        key:`${hh}:${mm}`,
+        label:`${dh}:${mm} ${suf}`,
+        blocked:false,
+        capacity:5
+      });
+    }
+  }
+  return slots;
+})();
+
+function renderSlotPanel(){
+  const body = document.getElementById('slotPanelBody');
+  // Group by hour
+  const hours = {};
+  SLOT_CONFIG.forEach(s=>{
+    const hr = s.key.split(':')[0];
+    if(!hours[hr]) hours[hr]=[];
+    hours[hr].push(s);
+  });
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px">
+      ${Object.entries(hours).map(([hr,slots])=>{
+        const dh=parseInt(hr)>12?parseInt(hr)-12:parseInt(hr), suf=parseInt(hr)<12?'AM':'PM';
+        return `<div style="border:1.5px solid var(--brd);border-radius:8px;overflow:hidden">
+          <div style="background:#f8f8f8;padding:8px 14px;font-size:12px;font-weight:700;color:var(--txt2);border-bottom:1px solid var(--brd-l)">
+            <i class="far fa-clock" style="margin-right:5px;color:var(--blue)"></i>${dh} ${suf} Hour
+          </div>
+          <div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+            ${slots.map(s=>`
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <span style="font-weight:700;font-size:13px;min-width:70px">${s.label}</span>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+                  <input type="checkbox" ${s.blocked?'':'checked'} onchange="toggleSlotBlock('${s.key}',!this.checked)"
+                    style="accent-color:var(--pri)">
+                  <span style="color:var(--txt2)">${s.blocked?'<span style=color:var(--red)>Blocked</span>':'Open'}</span>
+                </label>
+                <div style="display:flex;align-items:center;gap:5px;font-size:12px">
+                  <span style="color:var(--muted)">Cap:</span>
+                  <input type="number" min="1" max="20" value="${s.capacity}"
+                    style="width:44px;padding:3px 6px;border:1.5px solid var(--brd);border-radius:4px;font-size:12px;font-weight:700;text-align:center"
+                    onchange="setSlotCapacity('${s.key}',this.value)">
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function toggleSlotBlock(key, block){
+  const s = SLOT_CONFIG.find(x=>x.key===key);
+  if(s) s.blocked = block;
+  showToast(`Slot ${key} ${block?'blocked':'opened'}`,'s');
+}
+
+function setSlotCapacity(key, val){
+  const s = SLOT_CONFIG.find(x=>x.key===key);
+  if(s) s.capacity = Math.max(1,parseInt(val)||1);
+}
+
+function resetAllSlots(){
+  SLOT_CONFIG.forEach(s=>{ s.blocked=false; s.capacity=5; });
+  renderSlotPanel();
+  showToast('All slots reset to open, capacity 5','s');
+}
+
+function saveSlots(){
+  const blocked = SLOT_CONFIG.filter(s=>s.blocked).map(s=>s.label);
+  showToast(blocked.length?`Saved — ${blocked.length} slot(s) blocked`:'All slots open — changes saved','s');
+}
+
+/* ─────────────────────────────
+   MODAL
+───────────────────────────── */
+function openModal(id){ document.getElementById(id).classList.add('on') }
+function closeModal(id){ document.getElementById(id).classList.remove('on') }
+document.querySelectorAll('.modal-backdrop').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('on') });
+});
+
+/* ─────────────────────────────
+   TOAST
+───────────────────────────── */
+function showToast(msg,type=''){
+  const root=document.getElementById('tr');
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');
+  const icon=type==='s'?'✅':type==='e'?'❌':'ℹ️';
+  t.innerHTML=`<span style="font-size:16px">${icon}</span><span class="toast-m">${msg}</span>`;
+  root.appendChild(t);
+  setTimeout(()=>{t.style.transition='all .3s';t.style.opacity='0';t.style.transform='translateY(8px)';setTimeout(()=>t.remove(),320);},2800);
+}
+
+async function apiFetch(path, method = 'GET', body = null){
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${adminToken}`,
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || 'Request failed');
+  return data;
+}
+
+/* ─────────────────────────────
+   INIT
+───────────────────────────── */
+// ── Socket.io — real-time order updates ──
+const socket = io('http://localhost:3000');
+
+socket.on('connect', () => {
+  const outlet = localStorage.getItem('qb_admin_outlet') || 1;
+  socket.emit('join_outlet', outlet);
+  console.log('🔌 Connected to server, joined outlet_' + outlet);
+});
+
+// New order arrives — add to top of orders table
+socket.on('new_order', (order) => {
+  showToast(`🆕 New order from ${order.student} — Token #${order.tokens?.[0]?.token}`, 's');
+  // Refresh orders table
+  renderOrdersTable(orderFilter || 'all');
+  // Update live badge count
+  const lcEl = document.getElementById('liveCount');
+  if (lcEl) lcEl.textContent = parseInt(lcEl.textContent || 0) + 1;
+});
+
+// Order status changed by another admin tab
+socket.on('order_status_changed', (data) => {
+  renderOrdersTable(orderFilter || 'all');
+});
+
+initOutlet();
+renderOrdersTable('all');
+
+// Mobile menu toggle visibility
+if(window.innerWidth < 900) document.getElementById('menuToggle').style.display='flex';
+
+// Auto-refresh live orders every 30s
+setInterval(()=>{
+  if(document.getElementById('panel-orders').classList.contains('on')){
+    loadOrdersFromAPI();
+  }
+},30000);
+</script>
+</body>
+</html>

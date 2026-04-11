@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueBuster — Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#eaeded;color:#0f1111;font-size:14px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit;border:none}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+:root{
+  --pri:#0f3d2e;--pri-l:#1a5c43;--pri-d:#092b1f;
+  --acc:#f5a623;--acc-d:#d4891a;--acc-l:#fff8ec;
+  --red:#b12704;--green:#27ae60;
+  --bg:#eaeded;--white:#fff;
+  --txt:#0f1111;--txt2:#565959;--muted:#8b9196;
+  --brd:#e0e0e0;--brd-l:#f0f0f0;
+  --sh:0 2px 8px rgba(0,0,0,.10);
+  --sh-lg:0 6px 24px rgba(0,0,0,.14);
+  /* outlet theme — set by JS */
+  --oc:#e74c3c;--ocl:#fef0ef;--ocd:#c0392b;
+}
+
+/* ── NAVBAR ── */
+.nav{background:var(--pri);position:sticky;top:0;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.nav-top{display:flex;align-items:center;gap:10px;padding:8px 20px;max-width:1600px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
+.logo img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--acc)}
+.logo-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff}
+.logo-tag{font-size:9px;color:rgba(255,255,255,.55);display:block}
+.nav-search{flex:1;display:flex;height:38px;border-radius:6px;overflow:hidden}
+.nav-search:focus-within{box-shadow:0 0 0 3px var(--acc)}
+.ns-inp{flex:1;border:none;padding:0 14px;font-size:13px;outline:none;color:#333}
+.ns-btn{background:var(--acc);border:none;padding:0 14px;color:var(--pri);font-size:15px;display:flex;align-items:center}
+.nav-acts{display:flex;align-items:center;gap:6px}
+.nav-act{color:#fff;padding:5px 10px;border:1.5px solid rgba(255,255,255,.22);border-radius:4px;font-size:12px;font-weight:600;text-decoration:none;transition:.15s;display:flex;align-items:center;gap:5px}
+.nav-act:hover{border-color:#fff}
+.nav-badge{background:var(--acc);color:var(--pri);font-size:10px;font-weight:800;border-radius:50%;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center}
+
+.breadcrumb{background:var(--pri-l);padding:6px 20px;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.7)}
+.breadcrumb a{color:rgba(255,255,255,.7)}
+.breadcrumb a:hover{color:#fff}
+.breadcrumb .sep{color:rgba(255,255,255,.4)}
+.breadcrumb .cur{color:#fff;font-weight:600}
+
+/* ── HERO ── */
+.hero{height:180px;position:relative;overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.52)}
+.hero-over{position:absolute;inset:0;display:flex;align-items:center;padding:0 32px;background:linear-gradient(to right,rgba(0,0,0,.6) 0%,transparent 70%)}
+.hero-info{color:#fff}
+.h-name{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.4);margin-bottom:8px}
+.h-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.h-tag{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.14);backdrop-filter:blur(4px);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.h-tag.open{color:#a8ffbe}
+.h-tag.open i{color:#27ae60}
+
+/* ── 3-COL LAYOUT ── */
+.wrap{max-width:1500px;margin:0 auto;padding:14px 14px;display:grid;grid-template-columns:210px 1fr 310px;gap:12px;align-items:start}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{background:#fff;border-radius:8px;box-shadow:var(--sh);overflow:hidden;position:sticky;top:80px}
+.sb-sec{padding:13px 14px;border-bottom:1px solid var(--brd-l)}
+.sb-sec:last-child{border-bottom:none}
+.sb-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.cat-list{list-style:none}
+.cat-list li{margin-bottom:2px}
+.cat-list a{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:6px;font-size:13px;font-weight:500;color:var(--txt2);transition:.15s;cursor:pointer;text-decoration:none}
+.cat-list a:hover{background:#f5f8f5;color:var(--pri)}
+.cat-list a.on{background:var(--ocl);color:var(--ocd);font-weight:700}
+.cc{font-size:10px;background:var(--brd-l);color:var(--muted);padding:1px 6px;border-radius:10px}
+.cat-list a.on .cc{background:var(--ocl);color:var(--ocd)}
+
+.frow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--brd-l);cursor:pointer}
+.frow:last-child{border-bottom:none;padding-bottom:0}
+.frow-lbl{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500}
+.tog{position:relative;width:34px;height:18px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tog-s{position:absolute;inset:0;background:#ddd;border-radius:18px;transition:.2s;cursor:pointer}
+.tog-s::before{content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked + .tog-s{background:var(--green)}
+.tog input:checked + .tog-s::before{transform:translateX(16px)}
+
+.info-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0}
+.info-row .l{color:var(--muted)}
+.info-row .v{font-weight:600}
+
+/* ── MENU CENTER ── */
+.topbar{background:#fff;border-radius:8px;padding:11px 13px;display:flex;align-items:center;gap:9px;margin-bottom:12px;box-shadow:var(--sh)}
+.msw{flex:1;display:flex;height:36px;border:1.5px solid var(--brd);border-radius:6px;overflow:hidden;transition:.15s}
+.msw:focus-within{border-color:var(--pri)}
+.msw i{padding:0 9px;display:flex;align-items:center;color:var(--muted);background:#f9f9f9;border-right:1px solid var(--brd)}
+.msw input{flex:1;border:none;outline:none;padding:0 10px;font-size:13px}
+.veg-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 11px;border:1.5px solid var(--brd);border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;background:#fff}
+.veg-btn.on{border-color:#2e7d32;background:#e8f5e9;color:#2e7d32}
+.vdot{width:14px;height:14px;border-radius:3px;border:1.5px solid #2e7d32;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vdot::after{content:'';width:6px;height:6px;border-radius:50%;background:#2e7d32}
+.rc{font-size:12px;color:var(--muted);white-space:nowrap}
+
+.csec{margin-bottom:22px}
+.csec-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--txt);margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid var(--ocl);display:flex;align-items:center;gap:7px}
+.csec-title span{font-size:11px;color:var(--muted);font-weight:500;font-family:'DM Sans',sans-serif}
+.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+
+/* ── MENU CARD ── */
+.mcard{background:#fff;border-radius:8px;border:1px solid var(--brd-l);overflow:hidden;transition:all .2s;display:flex;flex-direction:column;position:relative}
+.mcard:hover{box-shadow:var(--sh-lg);transform:translateY(-2px)}
+.mcard.so{opacity:.62}
+.mc-img{height:128px;overflow:hidden;position:relative;background:var(--bg)}
+.mc-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.mcard:hover .mc-img img{transform:scale(1.06)}
+.mc-sold{position:absolute;inset:0;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.mc-vegbadge{position:absolute;top:7px;right:7px;background:#fff;padding:2px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.ivdot{width:14px;height:14px;border-radius:3px;border:1.5px solid;display:flex;align-items:center;justify-content:center}
+.ivdot::after{content:'';width:6px;height:6px;border-radius:50%}
+.ivdot.v{border-color:#2e7d32}.ivdot.v::after{background:#2e7d32}
+.ivdot.nv{border-color:#c62828}.ivdot.nv::after{background:#c62828}
+.mc-flags{position:absolute;top:7px;left:7px;display:flex;flex-direction:column;gap:4px}
+.mc-flag{font-size:9px;font-weight:800;padding:2px 7px;border-radius:10px;color:#fff;text-transform:uppercase;letter-spacing:.5px}
+.mc-flag.bs{background:#e74c3c}
+.mc-flag.sp{background:var(--acc);color:var(--pri)}
+.mc-flag.nw{background:var(--green)}
+.mc-body{padding:10px 11px;flex:1;display:flex;flex-direction:column}
+.mc-name{font-size:13px;font-weight:700;margin-bottom:3px;display:block;max-height:calc(1.35em * 2);overflow:hidden;min-height:36px}
+.mc-desc{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:6px;flex:1}
+.mc-stock{font-size:10px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.sbar{height:3px;border-radius:2px;background:var(--brd-l);flex:1;overflow:hidden}
+.sfill{height:100%;border-radius:2px;transition:.3s}
+.mc-foot{display:flex;align-items:center;justify-content:space-between}
+.mc-price{font-size:15px;font-weight:800;color:var(--red)}
+.add-btn{background:var(--acc);border:none;width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:var(--pri);transition:all .2s;line-height:1}
+.add-btn:hover{background:var(--acc-d);transform:scale(1.1)}
+.add-btn:disabled{background:#ddd;color:#aaa;cursor:not-allowed;transform:none}
+.qty-ctrl{display:flex;align-items:center;gap:5px}
+.qbtn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--brd);background:#fff;font-size:14px;font-weight:700;color:var(--pri);display:flex;align-items:center;justify-content:center;transition:.15s;cursor:pointer;line-height:1}
+.qbtn:hover{border-color:var(--pri);background:var(--acc-l)}
+.qnum{font-size:14px;font-weight:800;color:var(--pri);min-width:18px;text-align:center}
+
+.empty-menu{text-align:center;padding:44px 20px;background:#fff;border-radius:8px}
+.empty-menu .ei{font-size:42px;margin-bottom:10px}
+.empty-menu .et{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px}
+.empty-menu .es{font-size:12px;color:var(--muted)}
+
+/* ── CART SIDEBAR ── */
+.cart-sb{background:#fff;border-radius:8px;box-shadow:var(--sh);position:sticky;top:80px;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.cart-hd{padding:13px 15px 11px;border-bottom:1px solid var(--brd-l);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cart-hd-l{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px}
+.cbadge{background:var(--oc);color:#fff;font-size:10px;font-weight:800;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center}
+.outlet-pill{font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;background:var(--ocl);color:var(--ocd)}
+
+.cart-empty{padding:28px 15px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cart-empty img{width:86px;height:86px;border-radius:50%;object-fit:cover;margin-bottom:13px;border:3px solid var(--brd-l);opacity:.65}
+.ce-t{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.ce-s{font-size:12px;color:var(--muted)}
+
+.cart-items{overflow-y:auto;flex:1;padding:9px 13px}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--brd-l)}
+.ci:last-child{border-bottom:none}
+.ci img{width:46px;height:42px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg)}
+.ci-info{flex:1;min-width:0}
+.ci-nm{font-size:12px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-pr{font-size:11.5px;color:var(--red);font-weight:700}
+.ci-qty{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.ciq{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--brd);background:#fff;font-size:12px;font-weight:700;color:var(--pri);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;line-height:1}
+.ciq:hover{border-color:var(--pri);background:var(--acc-l)}
+.ciqn{font-size:12px;font-weight:800;color:var(--pri);min-width:15px;text-align:center}
+
+.cart-sum{padding:11px 15px;border-top:1px solid var(--brd-l);flex-shrink:0}
+.srow{display:flex;justify-content:space-between;font-size:13px;color:var(--txt2);margin-bottom:4px}
+.srow.tot{font-size:15px;font-weight:800;color:var(--txt);margin-top:7px;padding-top:7px;border-top:1px solid var(--brd-l);margin-bottom:0}
+
+.slot-sec{padding:11px 15px;border-top:1px solid var(--brd-l);flex-shrink:0}
+.slot-lbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.slot-sel{width:100%;height:37px;border:1.5px solid var(--brd);border-radius:6px;padding:0 10px;font-size:13px;font-weight:600;color:var(--txt);background:#fff;outline:none;cursor:pointer;transition:.15s}
+.slot-sel:focus{border-color:var(--pri)}
+
+.co-wrap{padding:11px 15px 13px;flex-shrink:0}
+.co-btn{width:100%;height:44px;background:var(--acc);color:var(--pri);font-size:14px;font-weight:800;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;cursor:pointer}
+.co-btn:hover{background:var(--acc-d);transform:translateY(-1px);box-shadow:0 4px 14px rgba(245,166,35,.4)}
+.co-btn:disabled{background:#ddd;color:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
+.co-note{font-size:11px;color:var(--muted);text-align:center;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:4px}
+
+.os-wrap{padding:9px 13px;border-top:1px solid var(--brd-l);flex-shrink:0}
+.os-lbl{font-size:11px;color:var(--muted);margin-bottom:6px}
+.os-btns{display:flex;gap:5px;flex-wrap:wrap}
+.os-btn{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;border:1.5px solid var(--brd);background:#fff;color:var(--txt2);transition:.15s;cursor:pointer}
+.os-btn:hover{border-color:var(--pri);color:var(--pri)}
+.os-btn.cur{border-color:var(--oc);background:var(--ocl);color:var(--ocd)}
+
+
+/* ── ITEM TIME WINDOW BADGE ── */
+.mc-time{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:9.5px;font-weight:700;
+  padding:2px 7px;border-radius:10px;
+  margin-bottom:5px;
+  background:#f0f4f0;color:#555;
+  border:1px solid #e0e0e0;
+}
+.mc-time.now{background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.2)}
+.mc-time.soon{background:#fff8e1;color:#f57f17;border-color:rgba(245,127,23,.2)}
+.mc-time.closed{background:#fde8e8;color:#c62828;border-color:rgba(198,40,40,.15)}
+.mcard.time-closed{opacity:.55}
+.mcard.time-closed .mc-img img{filter:grayscale(40%)}
+/* Timing conflict warning in cart */
+.time-warn{
+  background:#fff3cd;border:1px solid #ffc107;
+  border-radius:6px;padding:9px 12px;
+  font-size:11.5px;color:#856404;
+  display:none;margin-bottom:8px;
+  line-height:1.5;
+}
+.time-warn.on{display:block}
+
+/* ── TOAST ── */
+#tr{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:#fff;border-radius:8px;padding:11px 15px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.16);border-left:4px solid var(--acc);min-width:240px;animation:tin .3s ease;pointer-events:all}
+@keyframes tin{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
+.toast.s{border-left-color:var(--green)}
+.toast.e{border-left-color:var(--red)}
+.toast-m{font-size:13px;font-weight:600;flex:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.wrap{grid-template-columns:180px 1fr 280px}}
+@media(max-width:900px){
+  .wrap{grid-template-columns:1fr;padding:8px}
+  .sidebar{position:static;border-radius:6px}
+  .cart-sb{position:static;max-height:none}
+  .mgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:520px){.mgrid{grid-template-columns:1fr}.hero{height:140px}.h-name{font-size:22px}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="nav-top">
+    <a href="index.html" class="logo">
+      <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=80&h=80&fit=crop" alt="SC">
+      <div><span class="logo-brand">QueueBuster</span><span class="logo-tag">Canteen Ordering &amp; Queue Management</span></div>
+    </a>
+    <div class="nav-search">
+      <input class="ns-inp" id="gs" placeholder="Search items..." oninput="filterMenu()">
+      <button class="ns-btn"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="nav-acts">
+      <a href="login.html" class="nav-act"><i class="fas fa-user"></i> Login</a>
+    </div>
+  </div>
+  <div class="breadcrumb">
+    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+    <span class="sep">›</span>
+    <a href="index.html#outlets">Outlets</a>
+    <span class="sep">›</span>
+    <span class="cur" id="bcName">Menu</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <img id="heroImg" src="" alt="">
+  <div class="hero-over">
+    <div class="hero-info">
+      <div class="h-name" id="heroName"></div>
+      <div class="h-meta" id="heroMeta"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3-COL -->
+<div class="wrap">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Categories</div>
+      <ul class="cat-list" id="catList"></ul>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Filters</div>
+      <div class="frow">
+        <div class="frow-lbl"><span style="color:#2e7d32">🟢</span> Veg Only</div>
+        <label class="tog"><input type="checkbox" id="vegF" onchange="filterMenu()"><span class="tog-s"></span></label>
+      </div>
+      <div class="frow">
+        <div class="frow-lbl"><span>✅</span> Available Only</div>
+        <label class="tog"><input type="checkbox" id="availF" onchange="filterMenu()" checked><span class="tog-s"></span></label>
+      </div>
+    </div>
+    <div class="sb-sec" id="outletInfoBox"></div>
+  </aside>
+
+  <!-- MENU CENTER -->
+  <div>
+    <div class="topbar">
+      <div class="msw">
+        <i class="fas fa-search"></i>
+        <input id="ms" placeholder="Search items..." oninput="filterMenu()">
+      </div>
+      <div class="veg-btn" id="vegBtn" onclick="toggleVeg()">
+        <div class="vdot"></div> Veg Only
+      </div>
+      <div class="rc" id="rc">—</div>
+    </div>
+    <div id="menuContainer"></div>
+  </div>
+
+  <!-- CART SIDEBAR -->
+  <aside class="cart-sb" id="cartSb">
+    <div class="cart-hd">
+      <div class="cart-hd-l">
+        <i class="fas fa-shopping-basket" style="color:var(--oc)"></i>
+        Your Cart
+        <span class="cbadge" id="cartBadge">0</span>
+      </div>
+      <span class="outlet-pill" id="cartPill"></span>
+    </div>
+
+    <div class="cart-empty" id="cartEmpty">
+      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=180&h=180&fit=crop" alt="">
+      <div class="ce-t">Cart is empty</div>
+      <div class="ce-s">Add items from the menu</div>
+    </div>
+
+    <div class="cart-items" id="cartItemsEl" style="display:none"></div>
+
+    <div class="cart-sum" id="cartSum" style="display:none">
+      <div class="srow"><span>Subtotal</span><span id="sub">₹0</span></div>
+      <div class="srow"><span>Platform Fee</span><span style="color:var(--green)">FREE</span></div>
+      <div class="srow tot"><span>Total</span><span id="tot">₹0</span></div>
+    </div>
+
+    <div class="time-warn" id="timeWarn">⏰ <strong>Heads up:</strong> Items in your cart have different pickup time windows. Please order them separately for the best experience.</div>
+    <div class="slot-sec" id="slotSec" style="display:none">
+      <div class="slot-lbl"><i class="far fa-clock" style="color:var(--oc)"></i> Pickup Slot</div>
+      <select class="slot-sel" id="slotSel">
+        <option value="">-- Select pickup time --</option>
+      </select>
+    </div>
+
+    <div class="co-wrap" id="coWrap" style="display:none">
+      <button class="co-btn" onclick="checkout()">
+        <i class="fas fa-lock"></i> Proceed to Pay
+      </button>
+      <div class="co-note"><i class="fas fa-shield-alt" style="color:var(--green)"></i> Secured by Razorpay</div>
+    </div>
+
+    <div class="os-wrap">
+      <div class="os-lbl">Switch outlet</div>
+      <div class="os-btns" id="osBtns"></div>
+    </div>
+  </aside>
+
+</div>
+
+<div id="tr"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ALL OUTLET DATA — 4 outlets, 85 items total
+═══════════════════════════════════════════════════════ */
+const OUTLETS = {
+  1: {
+    name:'Canteen 1',
+    short:'C1',
+    desc:'Full meals, tiffins and fast food. The most popular outlet on campus.',
+    openTime:'08:00', closeTime:'17:00',
+    open:true,
+    totalItems:18,
+    vegCount:13,
+    nonVegCount:5,
+    color:'#e74c3c', colorL:'#fef0ef', colorD:'#c0392b',
+    img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&h=360&fit=crop&crop=center',
+    categories:['Tiffins','Fast Food','Meals'],
+    menu:[
+      /* ── TIFFINS  8 AM – 11 AM ── */
+      {id:103,name:'Masala Dosa',desc:'Crispy rice crepe with spiced potato filling, sambar and chutneys',cat:'Tiffins',price:60,isVeg:true,stock:40,avail:true,badge:'bs',availFrom:'08:00',availTo:'11:00',img:'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&h=256&fit=crop'},
+      {id:104,name:'Idli Sambhar (3 pcs)',desc:'Steamed rice idlis with fresh sambhar and coconut chutney',cat:'Tiffins',price:40,isVeg:true,stock:80,avail:true,badge:'',availFrom:'08:00',availTo:'11:00',img:'https://images.unsplash.com/photo-1630383249896-424e482df921?w=400&h=256&fit=crop'},
+      {id:115,name:'Vada',desc:'Crispy deep-fried lentil doughnut served with sambar and coconut chutney',cat:'Tiffins',price:40,isVeg:true,stock:60,avail:true,badge:'',availFrom:'08:00',availTo:'11:00',img:'https://images.unsplash.com/photo-1630383249896-424e482df921?w=400&h=256&fit=crop'},
+      {id:116,name:'Puri',desc:'Fluffy deep-fried wheat bread served with spiced potato curry',cat:'Tiffins',price:40,isVeg:true,stock:50,avail:true,badge:'',availFrom:'08:00',availTo:'11:00',img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=256&fit=crop'},
+      {id:118,name:"Today's Curry",desc:"Chef's daily curry — changes every morning, served with rice or roti",cat:'Tiffins',price:20,isVeg:true,stock:60,avail:true,badge:'sp',availFrom:'08:00',availTo:'11:00',img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=256&fit=crop'},
+      /* ── FAST FOOD  11 AM – 5 PM ── */
+      {id:106,name:'Veg Fried Rice',desc:'Wok-tossed rice with mixed vegetables, soy and sesame',cat:'Fast Food',price:80,isVeg:true,stock:50,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=400&h=256&fit=crop'},
+      {id:108,name:'Egg Fried Rice',desc:'Fluffy rice with scrambled eggs, spring onions and house sauce',cat:'Fast Food',price:90,isVeg:false,stock:0,avail:false,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=256&fit=crop'},
+      {id:110,name:'Veg Noodles',desc:'Hakka-style stir-fried noodles with fresh mixed vegetables and house sauce',cat:'Fast Food',price:45,isVeg:true,stock:50,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=256&fit=crop'},
+      {id:111,name:'Egg Noodles',desc:'Wok-tossed noodles with scrambled egg, vegetables and Asian sauces',cat:'Fast Food',price:70,isVeg:false,stock:45,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=256&fit=crop'},
+      {id:112,name:'Veg Manchuria',desc:'Crispy vegetable balls tossed in tangy, spicy Manchurian sauce',cat:'Fast Food',price:60,isVeg:true,stock:40,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=256&fit=crop'},
+      {id:113,name:'Chicken Manchuria',desc:'Crispy chicken pieces tossed in spicy Indo-Chinese Manchurian gravy',cat:'Fast Food',price:100,isVeg:false,stock:35,avail:true,badge:'bs',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1567337710282-00832b415979?w=400&h=256&fit=crop'},
+      {id:114,name:'Paneer Fried Rice',desc:'Fragrant fried rice with golden paneer cubes, bell peppers and soy glaze',cat:'Fast Food',price:100,isVeg:true,stock:40,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=400&h=256&fit=crop'},
+      /* ── MEALS  12 PM – 5 PM ── */
+      {id:101,name:'Chicken Biryani',desc:'Fragrant basmati with tender chicken, whole spices and fried onions',cat:'Meals',price:150,isVeg:false,stock:40,avail:true,badge:'bs',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&h=256&fit=crop'},
+      {id:102,name:'Veg Biryani',desc:'Aromatic basmati with seasonal vegetables, saffron and mint',cat:'Meals',price:100,isVeg:true,stock:50,avail:true,badge:'',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1536304993881-ff86e0c9b9aa?w=400&h=256&fit=crop'},
+      {id:105,name:'Chicken Fried Rice',desc:'Wok-tossed rice with chicken, eggs, vegetables and soy sauce',cat:'Meals',price:110,isVeg:false,stock:45,avail:true,badge:'',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=256&fit=crop'},
+      {id:107,name:'Veg Meals',desc:'Complete vegetarian meal — dal, sabzi, roti, rice, pickle and papad',cat:'Meals',price:70,isVeg:true,stock:30,avail:true,badge:'sp',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=256&fit=crop'},
+      {id:117,name:'Paneer Biryani',desc:'Aromatic basmati layered with spiced paneer, caramelised onions and saffron',cat:'Meals',price:150,isVeg:true,stock:35,avail:true,badge:'',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&h=256&fit=crop'},
+      {id:109,name:'Classic Samosa (2 pcs)',desc:'Golden fried pastry filled with spiced potatoes and peas',cat:'Meals',price:20,isVeg:true,stock:0,avail:false,badge:'',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&h=256&fit=crop'},
+    ]
+  },
+
+  2: {
+    name:'Canteen 2',
+    short:'C2',
+    desc:'Rolls, momos, biryani and noodles — campus street food done right.',
+    openTime:'09:00', closeTime:'17:00',
+    open:true,
+    totalItems:14,
+    vegCount:8,
+    nonVegCount:6,
+    color:'#2980b9', colorL:'#eaf4fc', colorD:'#2471a3',
+    img:'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1400&h=360&fit=crop&crop=center',
+    categories:['Rolls','Snacks','Meals','Fast Food'],
+    menu:[
+      /* ── ROLLS  9 AM – 5 PM ── */
+      {id:203,name:'Veg Roll',desc:'Soft roti stuffed with spiced vegetables, onions and house chutney',cat:'Rolls',price:40,isVeg:true,stock:50,avail:true,badge:'',availFrom:'09:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=400&h=256&fit=crop'},
+      {id:204,name:'Chicken Roll',desc:'Soft roti with spiced grilled chicken strips, onion and mint chutney',cat:'Rolls',price:80,isVeg:false,stock:40,avail:true,badge:'bs',availFrom:'09:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d6?w=400&h=256&fit=crop'},
+      {id:205,name:'Egg Roll',desc:'Soft roti wrapped with a fresh fried egg, veggies and tangy sauce',cat:'Rolls',price:50,isVeg:false,stock:45,avail:true,badge:'',availFrom:'09:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&h=256&fit=crop'},
+      /* ── SNACKS  9 AM – 5 PM ── */
+      {id:201,name:'Veg Momos (6 pcs)',desc:'Steamed dumplings stuffed with spiced mixed vegetables, with red chilli dip',cat:'Snacks',price:50,isVeg:true,stock:70,avail:true,badge:'bs',availFrom:'09:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=256&fit=crop'},
+      {id:202,name:'Chicken Momos (6 pcs)',desc:'Juicy steamed dumplings with minced chicken filling and house sauce',cat:'Snacks',price:65,isVeg:false,stock:50,avail:true,badge:'bs',availFrom:'09:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&h=256&fit=crop'},
+      /* ── MEALS  12 PM – 5 PM ── */
+      {id:206,name:'Chicken Biryani',desc:'Fragrant basmati layered with spiced chicken, whole spices and fried onions',cat:'Meals',price:150,isVeg:false,stock:35,avail:true,badge:'bs',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&h=256&fit=crop'},
+      {id:207,name:'Paneer Biryani',desc:'Aromatic basmati with golden paneer, caramelised onions and saffron',cat:'Meals',price:150,isVeg:true,stock:30,avail:true,badge:'sp',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1536304993881-ff86e0c9b9aa?w=400&h=256&fit=crop'},
+      {id:208,name:'Veg Biryani',desc:'Seasonal vegetables slow-cooked with aromatic basmati and whole spices',cat:'Meals',price:100,isVeg:true,stock:40,avail:true,badge:'',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1536304993881-ff86e0c9b9aa?w=400&h=256&fit=crop'},
+      {id:209,name:'Butter Naan + Paneer Curry',desc:'Soft butter naan with rich, creamy paneer gravy',cat:'Meals',price:130,isVeg:true,stock:30,avail:true,badge:'sp',availFrom:'12:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&h=256&fit=crop'},
+      /* ── FAST FOOD  11 AM – 5 PM ── */
+      {id:211,name:'Veg Fried Rice',desc:'Wok-tossed rice with mixed vegetables and Asian sauces',cat:'Fast Food',price:80,isVeg:true,stock:50,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=400&h=256&fit=crop'},
+      {id:212,name:'Chicken Fried Rice',desc:'Wok-tossed basmati with chicken strips, eggs and soy sauce',cat:'Fast Food',price:110,isVeg:false,stock:40,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=256&fit=crop'},
+      {id:214,name:'Egg Rice Bowl',desc:'Steamed rice topped with masala egg gravy and crispy onions',cat:'Fast Food',price:90,isVeg:false,stock:40,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=256&fit=crop'},
+      {id:219,name:'Veg Noodles',desc:'Hakka-style stir-fried noodles with vegetables in house sauce',cat:'Fast Food',price:70,isVeg:true,stock:45,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=256&fit=crop'},
+      {id:220,name:'Chicken Noodles',desc:'Wok-tossed noodles with tender chicken and Asian sauces',cat:'Fast Food',price:90,isVeg:false,stock:40,avail:true,badge:'',availFrom:'11:00',availTo:'17:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=256&fit=crop'},
+    ]
+  },
+
+  3: {
+    name:'Cafeteria',
+    short:'CF',
+    desc:'Hot & cold coffees, teas and Maggi varieties — your daily campus fuel stop.',
+    openTime:'08:00', closeTime:'18:00',
+    open:true,
+    totalItems:15,
+    vegCount:14,
+    nonVegCount:1,
+    color:'#8e44ad', colorL:'#f5eef8', colorD:'#7d3c98',
+    img:'https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=1400&h=360&fit=crop&crop=center',
+    categories:['Coffee/Tea','Maggi'],
+    menu:[
+      /* ── COFFEE / TEA  8 AM – 6 PM ── */
+      {id:301,name:'Hot Coffee',desc:'Classic hot coffee brewed fresh — the perfect morning pick-me-up',cat:'Coffee/Tea',price:20,isVeg:true,stock:100,avail:true,badge:'bs',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=256&fit=crop'},
+      {id:302,name:'Milk Coffee',desc:'Smooth hot coffee blended with full-cream milk — rich and comforting',cat:'Coffee/Tea',price:20,isVeg:true,stock:100,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=256&fit=crop'},
+      {id:303,name:'Black Coffee',desc:'Strong bold black coffee with no milk — pure roasted flavour',cat:'Coffee/Tea',price:15,isVeg:true,stock:120,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=256&fit=crop'},
+      {id:304,name:'Cold Coffee',desc:'Chilled blended coffee with milk and sugar — classic campus refresher',cat:'Coffee/Tea',price:40,isVeg:true,stock:80,avail:true,badge:'sp',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=256&fit=crop'},
+      {id:305,name:'Filter Coffee',desc:'Authentic South Indian filter coffee with chicory blend and frothy milk',cat:'Coffee/Tea',price:25,isVeg:true,stock:80,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400&h=256&fit=crop'},
+      {id:306,name:'Milk Tea',desc:'Classic hot tea brewed with full-cream milk and sugar',cat:'Coffee/Tea',price:15,isVeg:true,stock:200,avail:true,badge:'bs',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&h=256&fit=crop'},
+      {id:307,name:'Black Tea',desc:'Light and refreshing hot tea without milk — simple and clean',cat:'Coffee/Tea',price:10,isVeg:true,stock:200,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&h=256&fit=crop'},
+      {id:308,name:'Ginger Tea',desc:'Hot tea infused with fresh ginger — warming and aromatic',cat:'Coffee/Tea',price:15,isVeg:true,stock:150,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=256&fit=crop'},
+      {id:309,name:'Masala Tea',desc:'Spiced tea with cardamom, ginger, cloves and full-cream milk',cat:'Coffee/Tea',price:15,isVeg:true,stock:150,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=256&fit=crop'},
+      {id:310,name:'Lemon Tea',desc:'Zesty hot tea with fresh lemon juice and a hint of honey',cat:'Coffee/Tea',price:15,isVeg:true,stock:120,avail:true,badge:'',availFrom:'08:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=256&fit=crop'},
+      /* ── MAGGI  9 AM – 6 PM ── */
+      {id:311,name:'Plain Maggi',desc:'Classic Maggi noodles cooked with butter and signature masala',cat:'Maggi',price:30,isVeg:true,stock:80,avail:true,badge:'bs',availFrom:'09:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=256&fit=crop'},
+      {id:312,name:'Vegetable Maggi',desc:'Maggi noodles tossed with fresh mixed vegetables and spices',cat:'Maggi',price:35,isVeg:true,stock:70,avail:true,badge:'',availFrom:'09:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1512058556646-c4da40fba323?w=400&h=256&fit=crop'},
+      {id:313,name:'Egg Maggi',desc:'Creamy Maggi noodles cooked with a fresh cracked egg and spices',cat:'Maggi',price:40,isVeg:false,stock:60,avail:true,badge:'',availFrom:'09:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=400&h=256&fit=crop'},
+      {id:314,name:'Butter Maggi',desc:'Rich and indulgent Maggi noodles finished with a generous dollop of butter',cat:'Maggi',price:40,isVeg:true,stock:70,avail:true,badge:'',availFrom:'09:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=256&fit=crop'},
+      {id:315,name:'Cheese Maggi',desc:'Hot Maggi noodles topped with melted cheese — the ultimate comfort combo',cat:'Maggi',price:45,isVeg:true,stock:60,avail:true,badge:'sp',availFrom:'09:00',availTo:'18:00',img:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=256&fit=crop'},
+    ]
+  },
+
+  4: {
+    name:'Juice Point',
+    short:'JP',
+    desc:'100% fresh juices, smoothies and fruit bowls. Pure veg, zero preservatives.',
+    openTime:'08:00', closeTime:'17:30',
+    open:true,
+    totalItems:11,
+    vegCount:11,
+    nonVegCount:0,
+    color:'#27ae60', colorL:'#eafaf1', colorD:'#1e8449',
+    img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=1400&h=360&fit=crop&crop=center',
+    categories:['Fresh Juice','Shakes / Smoothies','Fruit Bowls'],
+    menu:[
+      /* ── FRESH JUICE  8 AM – 5:30 PM ── */
+      {id:401,name:'Mango Juice',desc:'Pure fresh mango pulp blended into a sweet, chilled glass of sunshine',cat:'Fresh Juice',price:45,isVeg:true,stock:60,avail:true,badge:'bs',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=400&h=256&fit=crop'},
+      {id:402,name:'Watermelon Juice',desc:'Cold-pressed watermelon juice with a hint of rock salt and lime',cat:'Fresh Juice',price:40,isVeg:true,stock:50,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=256&fit=crop'},
+      {id:403,name:'Pomegranate Juice',desc:'Deep-red pomegranate juice packed with antioxidants — rich and refreshing',cat:'Fresh Juice',price:70,isVeg:true,stock:40,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400&h=256&fit=crop'},
+      {id:404,name:'Mosambi Juice',desc:'Chilled fresh sweet lime juice — light, citrusy and naturally refreshing',cat:'Fresh Juice',price:50,isVeg:true,stock:55,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=256&fit=crop'},
+      {id:405,name:'ABC Juice (Apple, Beet, Carrot)',desc:'Immunity-boosting blend of apple, beetroot and carrot — earthy and vibrant',cat:'Fresh Juice',price:80,isVeg:true,stock:45,avail:true,badge:'sp',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=400&h=256&fit=crop'},
+      {id:406,name:'Pineapple Juice',desc:'Tangy cold-pressed pineapple juice with fresh mint and black salt',cat:'Fresh Juice',price:55,isVeg:true,stock:40,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=400&h=256&fit=crop'},
+      /* ── SHAKES / SMOOTHIES  8 AM – 5:30 PM ── */
+      {id:407,name:'Mango Banana Smoothie',desc:'Thick blend of ripe mango and banana with honey and milk',cat:'Shakes / Smoothies',price:65,isVeg:true,stock:50,avail:true,badge:'bs',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=400&h=256&fit=crop'},
+      {id:408,name:'Avocado Energy Blast',desc:'Creamy avocado blended with banana, almond milk and honey',cat:'Shakes / Smoothies',price:110,isVeg:true,stock:30,avail:true,badge:'sp',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=256&fit=crop'},
+      {id:409,name:'Tropical Papaya Smoothie',desc:'Ripe papaya blended with ginger, lime and a pinch of pepper',cat:'Shakes / Smoothies',price:50,isVeg:true,stock:40,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=400&h=256&fit=crop'},
+      /* ── FRUIT BOWLS  8 AM – 5:30 PM ── */
+      {id:411,name:'Exotic Tropical Fruit Bowl',desc:'Papaya, pineapple, kiwi and passion fruit with honey drizzle',cat:'Fruit Bowls',price:90,isVeg:true,stock:25,avail:true,badge:'sp',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400&h=256&fit=crop'},
+      {id:413,name:'Seasonal Fresh Fruit Bowl',desc:"Chef's choice of the freshest seasonal fruits, lightly spiced",cat:'Fruit Bowls',price:70,isVeg:true,stock:30,avail:true,badge:'',availFrom:'08:00',availTo:'17:30',img:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400&h=256&fit=crop'},
+    ]
+  }
+}
+const API_BASE  = 'http://localhost:3000';
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+const params   = new URLSearchParams(window.location.search);
+const outletId = parseInt(params.get('id')) || 1;
+
+// ── Fetch menu from backend API ──
+let O = OUTLETS[outletId] || OUTLETS[1]; // fallback to static while loading
+
+async function loadMenuFromAPI() {
+  document.getElementById('menuContainer').innerHTML = `<div class="empty-menu"><div class="ei">⏳</div><div class="et">Loading menu...</div><div class="es">Fetching latest items</div></div>`;
+  try {
+    const res  = await fetch(`${API_BASE}/api/menu/${outletId}`);
+    const data = await res.json();
+    if (!data.success) throw new Error('API failed');
+
+    // Map API response to the same format the frontend expects
+    const outlet = data.outlet;
+    const menu   = data.menu.map(item => ({
+      id:        item.id,
+      name:      item.name,
+      desc:      item.description,
+      cat:       item.category,
+      price:     parseFloat(item.price),
+      isVeg:     item.is_veg === 1,
+      avail:     item.is_available === 1,
+      stock:     item.daily_stock - item.sold_today,
+      badge:     item.badge || '',
+      availFrom: item.avail_from ? item.avail_from.substring(0,5) : null,
+      availTo:   item.avail_to   ? item.avail_to.substring(0,5)   : null,
+      img:       item.img_url
+    }));
+
+    // Get unique categories in order
+    const cats = [...new Set(menu.map(i => i.cat))];
+
+    // Override O with live data
+    O = {
+      ...O,
+      name:       outlet.name,
+      openTime:   outlet.open_time.substring(0,5),
+      closeTime:  outlet.close_time.substring(0,5),
+      open:       outlet.is_open === 1,
+      color:      outlet.color,
+      totalItems: menu.length,
+      vegCount:   menu.filter(i => i.isVeg).length,
+      nonVegCount:menu.filter(i => !i.isVeg).length,
+      categories: cats,
+      menu
+    };
+
+    // Re-render with live data
+    document.title = `QueueBuster — ${O.name}`;
+    document.getElementById('heroName').textContent = O.name;
+    document.getElementById('bcName').textContent   = O.name;
+    document.getElementById('heroImg').src          = O.img || outlet.img_url;
+    document.getElementById('outletInfoBox').innerHTML = `
+      <div class="sb-lbl">Outlet Info</div>
+      <div class="info-row"><span class="l">Status</span><span class="v" style="color:var(--green)">● Open</span></div>
+      <div class="info-row"><span class="l">Hours</span><span class="v">${fmtTime(O.openTime)} – ${fmtTime(O.closeTime)}</span></div>
+      <div class="info-row"><span class="l">Total Items</span><span class="v">${O.totalItems}</span></div>
+      <div class="info-row"><span class="l">Veg Items</span><span class="v">${O.vegCount}</span></div>
+      <div class="info-row"><span class="l">Non-Veg</span><span class="v">${O.nonVegCount}</span></div>
+    `;
+    buildCatNav();
+    loadCartFromStorage();
+    renderMenu();
+    buildSlots();
+
+  } catch(err) {
+    console.warn('API fetch failed, using static data:', err.message);
+    toast('Could not fetch live menu. Showing cached data.', 'e');
+    // Falls back to hardcoded OUTLETS data
+    loadCartFromStorage();
+    renderMenu();
+    buildSlots();
+  }
+}
+
+// Apply theme colours via CSS vars
+document.documentElement.style.setProperty('--oc',  O.color);
+document.documentElement.style.setProperty('--ocl', O.colorL);
+document.documentElement.style.setProperty('--ocd', O.colorD);
+
+// Page title
+document.title = `QueueBuster — ${O.name}`;
+
+// Breadcrumb
+document.getElementById('bcName').textContent = O.name;
+
+// Hero
+document.getElementById('heroImg').src = O.img;
+document.getElementById('heroImg').alt = O.name;
+document.getElementById('heroName').textContent = O.name;
+const openLabel = O.open
+  ? `<div class="h-tag open"><i class="fas fa-circle" style="font-size:7px"></i> Open Now</div>`
+  : `<div class="h-tag" style="color:#ffb3b3"><i class="fas fa-circle" style="font-size:7px;color:#e74c3c"></i> Closed</div>`;
+document.getElementById('heroMeta').innerHTML = `
+  ${openLabel}
+  <div class="h-tag time"><i class="far fa-clock"></i> ${fmtTime(O.openTime)} – ${fmtTime(O.closeTime)}</div>
+  <div class="h-tag items"><i class="fas fa-utensils"></i> ${O.totalItems} Items</div>
+  <div class="h-tag items"><i class="fas fa-leaf" style="color:#a8ffbe"></i> ${O.vegCount} Veg</div>
+`;
+
+function fmtTime(t){
+  const [h,m] = t.split(':').map(Number);
+  const suf = h < 12 ? 'AM' : 'PM';
+  const dh  = h > 12 ? h-12 : (h===0?12:h);
+  return `${dh}:${String(m).padStart(2,'0')} ${suf}`;
+}
+
+// Cart pill
+document.getElementById('cartPill').textContent = O.name;
+
+// Outlet switcher
+const osBtns = document.getElementById('osBtns');
+[1,2,3,4].forEach(id => {
+  const b = document.createElement('button');
+  b.className = 'os-btn' + (id === outletId ? ' cur' : '');
+  b.textContent = (OUTLETS[id] && OUTLETS[id].name) ? OUTLETS[id].name : `Outlet ${id}`;
+  b.onclick = () => location.href = `outlet.html?id=${id}`;
+  osBtns.appendChild(b);
+});
+
+// Sidebar categories
+buildCatNav();
+
+// Outlet info
+document.getElementById('outletInfoBox').innerHTML = `
+  <div class="sb-lbl">Outlet Info</div>
+  <div class="info-row"><span class="l">Status</span><span class="v" style="color:var(--green)">● Open</span></div>
+  <div class="info-row"><span class="l">Hours</span><span class="v">${fmtTime(O.openTime)} – ${fmtTime(O.closeTime)}</span></div>
+  <div class="info-row"><span class="l">Total Items</span><span class="v">${O.totalItems}</span></div>
+  <div class="info-row"><span class="l">Veg Items</span><span class="v">${O.vegCount}</span></div>
+  <div class="info-row"><span class="l">Non-Veg</span><span class="v">${O.nonVegCount}</span></div>
+`;
+
+// Search placeholder
+document.getElementById('gs').placeholder    = `Search in ${O.name}...`;
+document.getElementById('ms').placeholder    = `Search ${O.name} menu...`;
+
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+let activeCat = 'all';
+let vegOnly   = false;
+let cart      = {}; // { itemId: { item, qty } }
+
+function saveCartToStorage(){
+  const qbCart = Object.values(cart).map(({item, qty}) => ({
+    id:        item.id,
+    name:      item.name,
+    category:  item.cat,
+    price:     item.price,
+    qty:       qty,
+    is_veg:    item.isVeg,
+    img:       item.img,
+    outlet_id: outletId
+  }));
+  localStorage.setItem('qb_cart', JSON.stringify(qbCart));
+}
+
+function loadCartFromStorage(){
+  cart = {};
+  let raw = [];
+  try {
+    raw = JSON.parse(localStorage.getItem('qb_cart') || '[]');
+  } catch (_) {
+    raw = [];
+  }
+
+  raw
+    .filter(x => Number(x.outlet_id) === outletId)
+    .forEach(x => {
+      const menuItem = O.menu.find(m => m.id === x.id || m.id === Number(x.id));
+      if (!menuItem) return;
+      const qty = Math.max(0, Number(x.qty) || 0);
+      if (!qty) return;
+      cart[menuItem.id] = { item: menuItem, qty };
+    });
+
+  updateCart();
+}
+
+/* ══════════════════════════════════
+   CATEGORY NAV
+══════════════════════════════════ */
+function buildCatNav(){
+  const ul = document.getElementById('catList');
+  const allCount = O.menu.length;
+  ul.innerHTML = `<li><a class="on" data-cat="all" onclick="setCat('all',this)">All Items <span class="cc" id="cc-all">${allCount}</span></a></li>`;
+  O.categories.forEach(cat => {
+    const cnt = O.menu.filter(i => i.cat === cat).length;
+    ul.innerHTML += `<li><a data-cat="${cat}" onclick="setCat('${cat}',this)">${cat} <span class="cc" id="cc-${cat.replace(/\s+/g,'_')}">${cnt}</span></a></li>`;
+  });
+}
+
+function setCat(cat, el){
+  event.preventDefault();
+  activeCat = cat;
+  document.querySelectorAll('.cat-list a').forEach(a => a.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderMenu();
+}
+
+/* ══════════════════════════════════
+   VEG TOGGLE
+══════════════════════════════════ */
+function toggleVeg(){
+  vegOnly = !vegOnly;
+  document.getElementById('vegBtn').classList.toggle('on', vegOnly);
+  document.getElementById('vegF').checked = vegOnly;
+  renderMenu();
+}
+
+/* ══════════════════════════════════
+   RENDER MENU
+══════════════════════════════════ */
+function filterMenu(){
+  renderMenu();
+}
+
+function renderMenu(){
+  const veg    = document.getElementById('vegF').checked || vegOnly;
+  const avail  = document.getElementById('availF').checked;
+  const q      = (document.getElementById('ms').value || '').toLowerCase().trim();
+
+  let items = O.menu.filter(item => {
+    if(activeCat !== 'all' && item.cat !== activeCat) return false;
+    if(veg && !item.isVeg) return false;
+    if(avail && !item.avail) return false;
+    if(q && !item.name.toLowerCase().includes(q) && !item.desc.toLowerCase().includes(q) && !item.cat.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('rc').textContent = `Showing ${items.length} item${items.length!==1?'s':''}`;
+
+  const container = document.getElementById('menuContainer');
+  if(!items.length){
+    container.innerHTML = `<div class="empty-menu"><div class="ei">🔍</div><div class="et">No items found</div><div class="es">Try clearing the search or filters</div></div>`;
+    return;
+  }
+
+  const cats = activeCat === 'all' ? O.categories : [activeCat];
+  let html = '';
+  cats.forEach(cat => {
+    const catItems = items.filter(i => i.cat === cat);
+    if(!catItems.length) return;
+    html += `<div class="csec">
+      <div class="csec-title">${catEmoji(cat)} ${cat} <span>${catItems.length} item${catItems.length>1?'s':''}</span></div>
+      <div class="mgrid">${catItems.map(cardHTML).join('')}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function catEmoji(c){
+  const map = {'Tiffins':'🥞','Meals':'🍱','Snacks':'🥪','Rolls':'🌯','Fast Food':'🍔','Coffee/Tea':'☕','Fresh Juice':'🍹','Shakes / Smoothies':'🥤','Maggi':'🍜','Fruit Bowls':'🍓','Quick Shots':'⚡'};
+  return map[c] || '🍽️';
+}
+
+/* ── Time window helpers ── */
+function parseMinutes(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function fmtHour(t){
+  const [h,m]=t.split(':').map(Number);
+  const suf=h<12?'AM':'PM', dh=h>12?h-12:(h===0?12:h);
+  return `${dh}:${String(m).padStart(2,'0')} ${suf}`;
+}
+function itemTimeState(item){
+  if(!item.availFrom) return 'now';
+  const now = new Date(); const cur = now.getHours()*60+now.getMinutes();
+  const from = parseMinutes(item.availFrom), to = parseMinutes(item.availTo);
+  if(cur >= from && cur < to) return 'now';
+  if(cur < from) return 'soon';
+  return 'closed';
+}
+
+function cardHTML(item){
+  const inCart = cart[item.id]?.qty || 0;
+  const stockPct = item.stock > 0 ? Math.min(100, Math.round((item.stock/80)*100)) : 0;
+  const sc = stockPct > 50 ? 'var(--green)' : stockPct > 20 ? '#e67e22' : 'var(--red)';
+  const sl = item.stock===0 ? 'Out of stock' : item.stock<=10 ? `Only ${item.stock} left!` : `${item.stock} available`;
+  const flagMap = {bs:'🔥 Bestseller', sp:"⭐ Special", nw:'🆕 New'};
+  const flagCls = {bs:'bs', sp:'sp', nw:'nw'};
+  const tState = itemTimeState(item);
+  const tLabel = item.availFrom ? `${fmtHour(item.availFrom)} – ${fmtHour(item.availTo)}` : '';
+  const tIcon  = tState==='now' ? '🟢' : tState==='soon' ? '🟡' : '🔴';
+  const timeClosed = tState === 'closed';
+
+  return `<div class="mcard${!item.avail?' so':''}${timeClosed?' time-closed':''}" id="mc-${item.id}">
+    <div class="mc-img">
+      <img src="${item.img}" alt="${item.name}" loading="lazy">
+      ${!item.avail ? '<div class="mc-sold">Sold Out</div>' : timeClosed ? '<div class="mc-sold" style="background:rgba(0,0,0,.55);color:#fff">Not Available Now</div>' : ''}
+      <div class="mc-vegbadge"><div class="ivdot ${item.isVeg?'v':'nv'}"></div></div>
+      ${item.badge ? `<div class="mc-flags"><span class="mc-flag ${flagCls[item.badge]}">${flagMap[item.badge]}</span></div>` : ''}
+    </div>
+    <div class="mc-body">
+      <div class="mc-name">${item.name}</div>
+      ${tLabel ? `<div class="mc-time ${tState}">${tIcon} ${tLabel}</div>` : ''}
+      <div class="mc-desc">${item.desc}</div>
+      <div class="mc-stock">
+        <span style="color:${item.stock===0?'var(--red)':item.stock<=10?'#e67e22':'var(--muted)'}">${sl}</span>
+        <div class="sbar"><div class="sfill" style="width:${stockPct}%;background:${sc}"></div></div>
+      </div>
+      <div class="mc-foot">
+        <span class="mc-price">₹${item.price}</span>
+        ${!item.avail || timeClosed
+          ? `<button class="add-btn" disabled title="${timeClosed?'Not available right now':'Sold out'}">+</button>`
+          : inCart > 0
+            ? `<div class="qty-ctrl">
+                 <button class="qbtn" onclick="changeQty(${item.id},-1)">−</button>
+                 <span class="qnum" id="qn-${item.id}">${inCart}</span>
+                 <button class="qbtn" onclick="changeQty(${item.id},1)">+</button>
+               </div>`
+            : `<button class="add-btn" onclick="addItem(${item.id})">+</button>`
+        }
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════
+   CART FUNCTIONS
+══════════════════════════════════ */
+function addItem(id){
+  const item = O.menu.find(i => i.id === id);
+  if(!item || !item.avail) return;
+  if(itemTimeState(item) === 'closed'){
+    toast(`<b>${item.name}</b> is not available right now (${fmtHour(item.availFrom)}–${fmtHour(item.availTo)})`, 'e');
+    return;
+  }
+  cart[id] = cart[id] || { item, qty:0 };
+  cart[id].qty++;
+  updateCart();
+  saveCartToStorage();
+  renderMenu();
+  toast(`<b>${item.name}</b> added to cart`, 's');
+}
+
+function changeQty(id, delta){
+  if(!cart[id]) return;
+  cart[id].qty += delta;
+  if(cart[id].qty <= 0) delete cart[id];
+  updateCart();
+  saveCartToStorage();
+  renderMenu();
+}
+
+function updateCart(){
+  const entries = Object.values(cart);
+  const totalQty = entries.reduce((s,e) => s+e.qty, 0);
+  const subtotal = entries.reduce((s,e) => s+e.item.price*e.qty, 0);
+
+  const _nb=document.getElementById('navB'); if(_nb) _nb.textContent = totalQty;
+  document.getElementById('cartBadge').textContent = totalQty;
+
+  const empty = totalQty === 0;
+  document.getElementById('cartEmpty').style.display       = empty ? '' : 'none';
+  document.getElementById('cartItemsEl').style.display     = empty ? 'none' : '';
+  document.getElementById('cartSum').style.display         = empty ? 'none' : '';
+  document.getElementById('slotSec').style.display         = empty ? 'none' : '';
+  document.getElementById('coWrap').style.display          = empty ? 'none' : '';
+
+  if(!empty){
+    document.getElementById('cartItemsEl').innerHTML = entries.map(({item,qty})=>`
+      <div class="ci">
+        <img src="${item.img}" alt="${item.name}" loading="lazy">
+        <div class="ci-info">
+          <div class="ci-nm">${item.name}</div>
+          <div class="ci-pr">₹${item.price} × ${qty} = <strong>₹${item.price*qty}</strong></div>
+        </div>
+        <div class="ci-qty">
+          <button class="ciq" onclick="changeQty(${item.id},-1)">−</button>
+          <span class="ciqn">${qty}</span>
+          <button class="ciq" onclick="changeQty(${item.id},1)">+</button>
+        </div>
+      </div>`).join('');
+    document.getElementById('sub').textContent = `₹${subtotal}`;
+    document.getElementById('tot').textContent = `₹${subtotal}`;
+
+    // Check if items have different time windows and warn
+    const windows = entries.map(({item})=>`${item.availFrom||''}-${item.availTo||''}`);
+    const hasConflict = new Set(windows).size > 1;
+    document.getElementById('timeWarn').classList.toggle('on', hasConflict);
+  }
+  // Rebuild slots whenever cart changes (respects time windows)
+  buildSlots();
+}
+
+/* ══════════════════════════════════
+   PICKUP SLOTS — 10-min intervals
+══════════════════════════════════ */
+function buildSlots(){
+  const sel = document.getElementById('slotSel');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">-- Select pickup time --</option>';
+
+  // Default: full outlet range
+  let slotFrom = parseMinutes(O.openTime);
+  let slotTo   = parseMinutes(O.closeTime);
+
+  // Narrow to intersection of all cart items' time windows
+  const entries = Object.values(cart);
+  if(entries.length > 0){
+    entries.forEach(({item})=>{
+      if(item.availFrom) slotFrom = Math.max(slotFrom, parseMinutes(item.availFrom));
+      if(item.availTo)   slotTo   = Math.min(slotTo,   parseMinutes(item.availTo));
+    });
+  }
+
+  if(slotFrom >= slotTo){
+    sel.innerHTML = '<option value="">No valid slots — cart has conflicting time windows</option>';
+    return;
+  }
+
+  // Generate slots in 10-min steps within the valid window
+  let cur = slotFrom;
+  while(cur < slotTo){
+    const h = Math.floor(cur/60), m = cur%60;
+    const hh=String(h).padStart(2,'0'), mm=String(m).padStart(2,'0');
+    const suf = h<12?'AM':'PM', dh = h>12?h-12:(h===0?12:h);
+    const o = document.createElement('option');
+    o.value = `${hh}:${mm}`;
+    o.textContent = `${dh}:${mm} ${suf}`;
+    sel.appendChild(o);
+    cur += 10;
+  }
+
+  // Restore previously selected slot if still valid
+  if(prev) sel.value = prev;
+}
+
+/* ══════════════════════════════════
+   CHECKOUT
+══════════════════════════════════ */
+function checkout(){
+  const slot = document.getElementById('slotSel').value;
+  if(!slot){ toast('Please select a pickup time slot','e'); document.getElementById('slotSel').focus(); return; }
+  const total = Object.values(cart).reduce((s,e)=>s+e.item.price*e.qty,0);
+  const id = outletId === 1 ? 'c1' : outletId === 2 ? 'c2' : outletId === 3 ? 'cf' : 'jp';
+
+  // Save cart to localStorage in the format cart.html expects
+  const qbCart = Object.values(cart).map(({item, qty}) => ({
+    id:        item.id,
+    name:      item.name,
+    category:  item.cat,
+    price:     item.price,
+    qty:       qty,
+    is_veg:    item.isVeg,
+    img:       item.img,
+    outlet_id: outletId
+  }));
+  localStorage.setItem('qb_cart', JSON.stringify(qbCart));
+
+  toast(`Redirecting to checkout — ₹${total}`, '');
+  setTimeout(()=> location.href = `cart.html?outlet=${id}&slot=${slot}&total=${total}`, 900);
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function toast(msg, type=''){
+  const root = document.getElementById('tr');
+  const t = document.createElement('div');
+  t.className = 'toast'+(type?' '+type:'');
+  const icon = type==='s'?'✅':type==='e'?'❌':'ℹ️';
+  t.innerHTML = `<span style="font-size:16px">${icon}</span><span class="toast-m">${msg}</span>`;
+  root.appendChild(t);
+  setTimeout(()=>{ t.style.transition='all .3s'; t.style.opacity='0'; t.style.transform='translateY(8px)'; setTimeout(()=>t.remove(),320); },2600);
+}
+
+/* ══════════════════════════════════
+   BOOT
+══════════════════════════════════ */
+loadMenuFromAPI();
+</script>
+</body>
+</html>

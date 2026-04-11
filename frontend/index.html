@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QueueBuster — Campus Food. Zero Wait. Every Time.</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ─────────────────────────────────────────
+   RESET & ROOT
+───────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:#eaeded;color:#0f1111;font-size:14px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#bbb;border-radius:3px}
+
+/* ─────────────────────────────────────────
+   CSS VARIABLES
+───────────────────────────────────────── */
+:root{
+  /* Brand */
+  --pri:#0f3d2e;
+  --pri-l:#1a5c43;
+  --pri-d:#092b1f;
+  --acc:#f5a623;
+  --acc-d:#d4891a;
+  --acc-l:#fff8ec;
+
+  /* Status */
+  --red:#b12704;
+  --green:#067d62;
+
+  /* UI */
+  --bg:#eaeded;
+  --white:#fff;
+  --txt:#0f1111;
+  --txt2:#565959;
+  --muted:#8b9196;
+  --brd:#ddd;
+  --brd-l:#f0f0f0;
+  --sh:0 2px 8px rgba(0,0,0,.12);
+  --sh-lg:0 6px 24px rgba(0,0,0,.14);
+
+  /* Outlet colours */
+  --c1:#e74c3c; --c1l:#fef0ef; --c1d:#c0392b;
+  --c2:#2980b9; --c2l:#eaf4fc; --c2d:#2471a3;
+  --cf:#8e44ad;  --cfl:#f5eef8; --cfd:#7d3c98;
+  --jp:#27ae60;  --jpl:#eafaf1; --jpd:#1e8449;
+}
+
+/* ─────────────────────────────────────────
+   NAVBAR
+───────────────────────────────────────── */
+.nav{
+  background:var(--pri);
+  position:sticky;
+  top:0;
+  z-index:1000;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+.nav-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 20px;
+  max-width:1600px;
+  margin:0 auto;
+}
+
+/* Logo */
+.logo{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:5px 9px;
+  border:2px solid transparent;
+  border-radius:4px;
+  transition:.15s;
+  flex-shrink:0;
+  text-decoration:none;
+}
+.logo:hover{border-color:#fff}
+.logo-img{
+  width:40px;height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid var(--acc);
+  flex-shrink:0;
+}
+.logo-brand{
+  font-family:'Sora',sans-serif;
+  font-weight:800;font-size:16px;
+  color:#fff;display:block;line-height:1.1;
+}
+.logo-tag{font-size:9px;color:rgba(255,255,255,.55);display:block}
+
+/* Location */
+.nav-loc{
+  display:flex;flex-direction:column;
+  padding:4px 8px;
+  border:2px solid transparent;border-radius:4px;
+  cursor:pointer;transition:.15s;flex-shrink:0;
+}
+.nav-loc:hover{border-color:#fff}
+.nav-loc .l-top{font-size:10px;color:rgba(255,255,255,.62)}
+.nav-loc .l-bot{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px}
+
+/* Search bar */
+.nav-search{
+  flex:1;
+  display:flex;height:40px;
+  border-radius:6px;overflow:hidden;
+  transition:.15s;
+}
+.nav-search:focus-within{box-shadow:0 0 0 3px var(--acc)}
+.sc-cat{
+  background:#e3e6e6;border:none;
+  padding:0 9px;font-size:12px;color:#333;
+  cursor:pointer;outline:none;
+  border-right:1px solid #c5c5c5;
+  min-width:108px;
+}
+.sc-inp{
+  flex:1;border:none;
+  padding:0 14px;font-size:14px;
+  outline:none;color:var(--txt);
+}
+.sc-btn{
+  background:var(--acc);border:none;
+  padding:0 16px;
+  color:var(--pri);font-size:16px;
+  display:flex;align-items:center;
+  transition:.15s;
+}
+.sc-btn:hover{background:var(--acc-d)}
+
+/* Account */
+.nav-acct{
+  display:flex;flex-direction:column;
+  color:#fff;
+  padding:4px 9px;
+  border:2px solid transparent;border-radius:4px;
+  cursor:pointer;transition:.15s;
+  background:none;text-decoration:none;
+  flex-shrink:0;
+}
+.nav-acct:hover{border-color:#fff}
+.nav-acct .a-top{font-size:10px;color:rgba(255,255,255,.62)}
+.nav-acct .a-bot{font-size:13px;font-weight:700;color:#fff}
+
+/* Cart buttons — one per outlet */
+.nav-carts{display:flex;align-items:center;gap:4px}
+.cart-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 9px;
+  border:2px solid rgba(255,255,255,.2);
+  border-radius:4px;
+  cursor:pointer;transition:.15s;
+  background:none;color:#fff;
+  text-decoration:none;flex-shrink:0;
+}
+.cart-btn:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.cart-btn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cart-btn-info{display:flex;flex-direction:column}
+.cart-btn-label{font-size:9.5px;color:rgba(255,255,255,.65);line-height:1.1}
+.cart-btn-count{font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:3px}
+.c-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--acc);color:var(--pri);
+  font-size:10px;font-weight:800;
+  border-radius:50%;width:17px;height:17px;
+  line-height:1;
+}
+
+/* Nav bottom strip */
+.nav-bot{
+  background:var(--pri-l);
+  display:flex;align-items:center;
+  padding:0 20px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.nav-bot::-webkit-scrollbar{display:none}
+.nb{
+  color:rgba(255,255,255,.88);
+  padding:8px 10px;
+  font-size:13px;font-weight:500;
+  white-space:nowrap;
+  border:2px solid transparent;border-radius:3px;
+  transition:.15s;
+  display:flex;align-items:center;gap:5px;
+  text-decoration:none;
+}
+.nb:hover,.nb.on{border-color:#fff;color:#fff}
+.nb.gold{color:var(--acc)}
+
+/* ─────────────────────────────────────────
+   HERO SLIDER
+───────────────────────────────────────── */
+.hero{position:relative;overflow:hidden}
+.hero-track{
+  display:flex;
+  transition:transform .65s cubic-bezier(.4,0,.2,1);
+}
+.hero-slide{
+  min-width:100%;height:360px;
+  display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.s-c1{background:linear-gradient(118deg,#0f3d2e 0%,#1a6644 50%,#0f5535 100%)}
+.s-c2{background:linear-gradient(118deg,#7b1f00 0%,#b03028 50%,#922b21 100%)}
+.s-cf{background:linear-gradient(118deg,#1a237e 0%,#2471a3 50%,#1565c0 100%)}
+.s-jp{background:linear-gradient(118deg,#4a148c 0%,#7d3c98 50%,#6a1b9a 100%)}
+
+.hero-bg-img{
+  position:absolute;right:0;top:0;
+  width:55%;height:100%;
+  object-fit:cover;
+  opacity:.28;
+  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.5) 28%,#000 62%);
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.5) 28%,#000 62%);
+}
+.hero-body{
+  padding:0 72px;
+  z-index:2;position:relative;
+  max-width:560px;
+}
+.hero-pill{
+  display:inline-block;
+  background:var(--acc);color:var(--pri);
+  font-size:10px;font-weight:800;
+  padding:4px 13px;border-radius:20px;
+  margin-bottom:13px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+.hero-h1{
+  font-family:'Sora',sans-serif;
+  font-size:43px;font-weight:800;
+  color:#fff;line-height:1.14;
+  margin-bottom:11px;
+}
+.hero-h1 em{color:var(--acc);font-style:normal}
+.hero-p{
+  color:rgba(255,255,255,.72);
+  font-size:14px;margin-bottom:26px;line-height:1.7;
+}
+.hero-cta{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--acc);color:var(--pri);
+  font-weight:800;font-size:14px;
+  padding:12px 26px;border-radius:6px;
+  border:none;transition:.2s;cursor:pointer;
+}
+.hero-cta:hover{
+  background:var(--acc-d);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(245,166,35,.38);
+}
+.hero-stats{
+  position:absolute;bottom:22px;left:72px;
+  display:flex;gap:22px;z-index:2;
+}
+.h-stat-n{
+  font-family:'Sora',sans-serif;
+  font-size:20px;font-weight:800;
+  color:var(--acc);
+}
+.h-stat-l{font-size:10px;color:rgba(255,255,255,.6)}
+
+/* Arrows */
+.hero-arrows{
+  position:absolute;top:50%;
+  transform:translateY(-50%);
+  width:100%;display:flex;
+  justify-content:space-between;
+  padding:0 8px;z-index:10;
+  pointer-events:none;
+}
+.h-arr{
+  pointer-events:all;
+  background:rgba(0,0,0,.28);
+  color:#fff;border:none;
+  width:40px;height:78px;
+  border-radius:4px;font-size:18px;
+  cursor:pointer;
+  backdrop-filter:blur(4px);transition:.2s;
+}
+.h-arr:hover{background:rgba(0,0,0,.52)}
+
+/* Dots */
+.hero-dots{
+  position:absolute;bottom:14px;right:20px;
+  display:flex;gap:6px;z-index:10;
+}
+.h-dot{
+  width:26px;height:4px;
+  background:rgba(255,255,255,.3);
+  border-radius:2px;
+  cursor:pointer;border:none;transition:.2s;
+}
+.h-dot.on{background:var(--acc)}
+
+/* ─────────────────────────────────────────
+   LAYOUT HELPERS
+───────────────────────────────────────── */
+.wrap{max-width:1500px;margin:0 auto;padding:0 16px}
+.sec{padding:16px 0}
+
+/* Section header — sits on top of white card */
+.sec-hd{
+  background:#fff;
+  padding:15px 20px 12px;
+  display:flex;align-items:flex-start;
+  justify-content:space-between;
+  border-radius:8px 8px 0 0;
+  border-bottom:1px solid var(--brd-l);
+}
+.sec-title{
+  font-family:'Sora',sans-serif;
+  font-size:20px;font-weight:700;
+  color:var(--txt);
+}
+.sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.sec-link{
+  font-size:13px;color:#007185;
+  font-weight:500;
+  white-space:nowrap;margin-top:4px;
+}
+.sec-link:hover{color:var(--acc-d);text-decoration:underline}
+
+/* Veg / Non-veg dot */
+.vdot{
+  width:14px;height:14px;
+  border-radius:3px;border:1.5px solid;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.vdot::after{
+  content:'';width:6px;height:6px;border-radius:50%;
+}
+.vdot.v{border-color:#2e7d32}.vdot.v::after{background:#2e7d32}
+.vdot.nv{border-color:#c62828}.vdot.nv::after{background:#c62828}
+
+/* Live / Open pulse */
+@keyframes live{0%,100%{opacity:1}50%{opacity:.35}}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;
+  display:inline-block;
+  animation:live 1.5s infinite;
+}
+
+/* ─────────────────────────────────────────
+   TODAY'S SPECIAL
+───────────────────────────────────────── */
+.sp-grid{
+  background:#fff;
+  border-radius:0 0 8px 8px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+}
+.sp-col{
+  padding:15px;
+  border-right:1px solid var(--brd-l);
+}
+.sp-col:last-child{border-right:none}
+
+.sp-head{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:2px solid #f3f3f3;
+}
+.sp-outlet-nm{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Sora',sans-serif;
+  font-size:14px;font-weight:700;
+}
+.sp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.open-tag{
+  display:flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;
+  background:#e8f5e9;color:#2e7d32;
+  padding:3px 8px;border-radius:10px;
+}
+
+/* Item row inside special */
+.sp-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 7px;border-radius:6px;
+  margin-bottom:8px;cursor:pointer;transition:.15s;
+}
+.sp-row:hover{background:#f8f8f8}
+.sp-row:last-of-type{margin-bottom:0}
+.sp-thumb{
+  width:58px;height:52px;
+  border-radius:6px;object-fit:cover;
+  flex-shrink:0;background:var(--bg);
+}
+.sp-info{flex:1;min-width:0}
+.sp-nm{
+  font-size:12.5px;font-weight:600;
+  white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;margin-bottom:3px;
+}
+.sp-pr{font-size:13.5px;font-weight:800;color:var(--red)}
+.sp-footer{margin-top:12px}
+.sp-menu-btn{
+  display:block;width:100%;
+  padding:9px;border-radius:6px;
+  font-size:12.5px;font-weight:700;
+  border:none;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+
+/* ─────────────────────────────────────────
+   OUTLET CARDS
+───────────────────────────────────────── */
+.oc-grid{
+  background:#fff;
+  border-radius:0 0 8px 8px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+}
+.oc{
+  border-right:1px solid var(--brd-l);
+  cursor:pointer;transition:background .18s;
+  overflow:hidden;
+}
+.oc:last-child{border-right:none}
+.oc:hover{background:#fafafa}
+
+.oc-img-wrap{height:114px;position:relative;overflow:hidden}
+.oc-img-wrap img{
+  width:100%;height:100%;
+  object-fit:cover;
+  transition:transform .4s;
+}
+.oc:hover .oc-img-wrap img{transform:scale(1.07)}
+.oc-img-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 58%);
+  display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:flex-end;
+  padding:11px 13px;
+}
+.oc-img-name{
+  font-family:'Sora',sans-serif;
+  font-size:15px;font-weight:800;
+  color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+.oc-img-count{font-size:11px;color:rgba(255,255,255,.78)}
+
+.oc-body{padding:12px 14px}
+.oc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.oc-status{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#27ae60}
+.oc-timing{font-size:11px;color:var(--muted)}
+.oc-desc{font-size:12px;color:var(--txt2);line-height:1.45;margin-bottom:8px}
+.oc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
+.oc-tag{font-size:10px;padding:3px 8px;border-radius:12px;background:var(--bg);color:var(--txt2)}
+.oc-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:10px}
+.oc-btn{
+  width:100%;padding:9px;border:none;
+  border-radius:6px;font-size:12.5px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+
+/* ─────────────────────────────────────────
+   CATEGORIES
+───────────────────────────────────────── */
+.cat-grid{
+  background:#fff;
+  border-radius:0 0 8px 8px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+}
+.cat-card{
+  padding:18px 10px;text-align:center;
+  border-right:1px solid var(--brd-l);
+  cursor:pointer;transition:.15s;
+  text-decoration:none;color:inherit;display:block;
+}
+.cat-card:hover{background:#f4f8f4}
+.cat-card:nth-child(5n){border-right:none}
+.cat-img{
+  width:68px;height:68px;border-radius:50%;
+  margin:0 auto 10px;
+  overflow:hidden;
+  border:3px solid var(--brd-l);
+  transition:.15s;
+}
+.cat-card:hover .cat-img{border-color:var(--acc)}
+.cat-img img{width:100%;height:100%;object-fit:cover}
+.cat-nm{font-size:13px;font-weight:600;margin-bottom:2px}
+.cat-cnt{font-size:11px;color:var(--muted)}
+
+/* ─────────────────────────────────────────
+   POPULAR ITEMS (horizontal scroll)
+───────────────────────────────────────── */
+.pop-wrap{
+  background:#fff;
+  border-radius:0 0 8px 8px;
+  padding:16px;
+  border-top:1px solid var(--brd-l);
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.pop-track{display:flex;gap:12px;width:max-content}
+
+.pcard{
+  width:178px;flex-shrink:0;
+  border:1px solid var(--brd-l);
+  border-radius:8px;overflow:hidden;
+  cursor:pointer;transition:all .22s;
+  background:#fff;position:relative;
+}
+.pcard:hover{box-shadow:var(--sh-lg);transform:translateY(-3px)}
+
+.pcard-img{
+  height:140px;overflow:hidden;
+  background:var(--bg);position:relative;
+}
+.pcard-img img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .4s;
+}
+.pcard:hover .pcard-img img{transform:scale(1.07)}
+
+.p-tag{
+  position:absolute;top:7px;left:7px;
+  font-size:9px;font-weight:700;
+  padding:3px 7px;border-radius:10px;
+  color:#fff;text-transform:uppercase;letter-spacing:.5px;
+}
+.p-veg{
+  position:absolute;top:7px;right:7px;
+  background:#fff;padding:2px;
+  border-radius:3px;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.sold-ov{
+  position:absolute;inset:0;
+  background:rgba(255,255,255,.82);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+  color:#888;text-transform:uppercase;letter-spacing:.5px;
+}
+
+.pcard-body{padding:10px}
+.pcard-nm{
+  font-size:13px;font-weight:600;
+  margin-bottom:3px;
+  line-height:1.35;
+  display:block;
+  max-height:calc(1.35em * 2);
+  overflow:hidden;min-height:36px;
+}
+.pcard-cat{font-size:11px;color:var(--muted);margin-bottom:7px}
+.pcard-foot{display:flex;align-items:center;justify-content:space-between}
+.pcard-price{font-size:15px;font-weight:800;color:var(--red)}
+.p-add{
+  background:var(--acc);border:none;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:800;color:var(--pri);
+  transition:all .2s;line-height:1;
+}
+.p-add:hover{background:var(--acc-d);transform:scale(1.12)}
+.p-add:disabled{background:#e0e0e0;color:#aaa;cursor:not-allowed;transform:none}
+
+/* ─────────────────────────────────────────
+   HOW IT WORKS
+───────────────────────────────────────── */
+.hiw{
+  background:linear-gradient(135deg,var(--pri) 0%,var(--pri-l) 100%);
+  border-radius:10px;padding:34px 36px;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:20px;position:relative;overflow:hidden;
+}
+.hiw::before{
+  content:'';position:absolute;
+  top:-80px;right:-80px;
+  width:260px;height:260px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.hiw::after{
+  content:'';position:absolute;
+  bottom:-60px;left:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.hiw-step{text-align:center;position:relative;z-index:1}
+.hiw-icon{
+  width:56px;height:56px;border-radius:50%;
+  object-fit:cover;margin:0 auto 12px;
+  border:3px solid rgba(255,255,255,.22);
+}
+.hiw-num{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--acc);color:var(--pri);
+  font-family:'Sora',sans-serif;font-size:22px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 12px;
+}
+.hiw-ttl{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:5px}
+.hiw-desc{font-size:12px;color:rgba(255,255,255,.68);line-height:1.55}
+
+/* ─────────────────────────────────────────
+   QUICK REORDER / LOGIN PROMPT
+───────────────────────────────────────── */
+.reorder-body{
+  background:#fff;
+  border-radius:0 0 8px 8px;
+  padding:22px;
+  border-top:1px solid var(--brd-l);
+}
+.login-prompt{
+  text-align:center;
+  padding:36px 20px;
+  background:linear-gradient(135deg,#f9f9f9,#f0f2f0);
+  border-radius:8px;
+}
+.lp-img{
+  width:80px;height:80px;border-radius:50%;
+  object-fit:cover;margin:0 auto 14px;
+  border:3px solid var(--brd-l);
+}
+.lp-ttl{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;margin-bottom:6px}
+.lp-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.lp-btn{
+  display:inline-block;
+  background:var(--acc);color:var(--pri);
+  font-weight:800;padding:11px 28px;
+  border-radius:6px;font-size:14px;transition:.2s;
+}
+.lp-btn:hover{background:var(--acc-d)}
+
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+.footer{background:var(--pri-d);color:rgba(255,255,255,.72);margin-top:24px}
+.footer-top{
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:32px 0 26px;
+}
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;
+  gap:28px;
+  max-width:1500px;margin:0 auto;padding:0 16px;
+}
+.fb-logo{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.fb-logo-img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--acc)}
+.fb-brand{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#fff}
+.fb-desc{font-size:12px;line-height:1.68;margin-bottom:14px}
+.fb-socials{display:flex;gap:8px}
+.fb-soc{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#fff;transition:.2s;cursor:pointer;
+}
+.fb-soc:hover{background:var(--acc);color:var(--pri)}
+
+.fc h4{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:12px}
+.fc a{display:block;font-size:12px;margin-bottom:7px;color:rgba(255,255,255,.68);transition:.15s}
+.fc a:hover{color:var(--acc)}
+.ft-item{margin-bottom:7px}
+.ft-nm{font-size:12px;font-weight:700;color:#fff}
+.ft-hr{font-size:11px;color:rgba(255,255,255,.42)}
+
+.footer-bot{
+  padding:14px 16px;
+  max-width:1500px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;
+}
+.footer-bot-links{display:flex;gap:18px}
+.footer-bot-links a{font-size:11px;color:rgba(255,255,255,.42);transition:.15s}
+.footer-bot-links a:hover{color:var(--acc)}
+
+/* ─────────────────────────────────────────
+   TOAST NOTIFICATIONS
+───────────────────────────────────────── */
+#toast-root{
+  position:fixed;bottom:22px;right:22px;
+  z-index:9999;
+  display:flex;flex-direction:column;gap:10px;
+  pointer-events:none;
+}
+.toast{
+  background:#fff;border-radius:8px;
+  padding:13px 16px;
+  display:flex;align-items:center;gap:11px;
+  box-shadow:0 4px 20px rgba(0,0,0,.16);
+  border-left:4px solid var(--acc);
+  min-width:265px;
+  animation:toastin .3s ease;
+  pointer-events:all;
+}
+@keyframes toastin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.toast.s{border-left-color:var(--green)}
+.toast.e{border-left-color:var(--red)}
+.toast-msg{font-size:13px;font-weight:600;flex:1;color:var(--txt)}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media(max-width:1280px){
+  .sp-grid,.oc-grid{grid-template-columns:repeat(2,1fr)}
+  .sp-col:nth-child(2){border-right:none}
+  .sp-col:nth-child(3){border-top:1px solid var(--brd-l)}
+  .oc:nth-child(2){border-right:none}
+  .oc:nth-child(3){border-top:1px solid var(--brd-l)}
+  .cat-grid{grid-template-columns:repeat(4,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:960px){
+  .hero-slide{height:265px}
+  .hero-body{padding:0 30px}
+  .hero-h1{font-size:29px}
+  .hero-stats{left:30px;gap:16px}
+  .hero-bg-img{width:42%;opacity:.2}
+  .hiw{grid-template-columns:repeat(2,1fr);padding:22px}
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  .nav-loc,.nav-carts{display:none}
+  .hero-slide{height:235px}
+  .hero-body{padding:0 20px}
+  .hero-h1{font-size:24px}
+  .hero-stats{display:none}
+  .sp-grid,.oc-grid{grid-template-columns:1fr}
+  .sp-col,.oc{border-right:none;border-bottom:1px solid var(--brd-l)}
+  .sp-col:last-child,.oc:last-child{border-bottom:none}
+  .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .footer-grid > div:first-child{grid-column:1/-1}
+}
+@media(max-width:480px){
+  .hero-slide{height:220px}
+  .hero-h1{font-size:20px}
+  .hero-p{display:none}
+  .hiw{grid-template-columns:1fr;padding:20px}
+  .footer-grid{grid-template-columns:1fr}
+}
+/* ── ORDER HISTORY CARDS ── */
+.oh-card{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.09);padding:16px 18px;margin-bottom:12px;border-left:4px solid var(--acc);transition:.2s}
+.oh-card.collected{border-left-color:#aaa;opacity:.72}
+.oh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.oh-id{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--pri)}
+.oh-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px}
+.oh-status.pending{background:#fff8ec;color:#d4891a}
+.oh-status.preparing{background:#eaf4fc;color:#2471a3}
+.oh-status.ready{background:#eafaf1;color:#1e8449}
+.oh-status.collected{background:#f0f0f0;color:#888;text-decoration:line-through}
+.oh-status.cancelled{background:#fdf5f5;color:#c0392b}
+.oh-items{font-size:12.5px;color:var(--txt2);margin-bottom:8px}
+.oh-tokens{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.oh-token{background:var(--pri);color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:800;padding:4px 13px;border-radius:6px;letter-spacing:.5px}
+.oh-token.done{background:#ccc;color:#888;text-decoration:line-through}
+.oh-foot{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+.oh-total{font-weight:800;color:var(--txt);font-size:14px}
+.oh-loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║           NAVBAR                      ║
+     ╚═══════════════════════════════════════╝ -->
+<nav class="nav">
+
+  <!-- Top row -->
+  <div class="nav-top">
+
+    <!-- Logo -->
+    <a href="index.html" class="logo">
+      <img class="logo-img" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=80&h=80&fit=crop&crop=center" alt="QueueBuster">
+      <div>
+        <span class="logo-brand">QueueBuster</span>
+        <span class="logo-tag">Canteen Ordering &amp; Queue Management</span>
+      </div>
+    </a>
+
+    <!-- Search -->
+    <div class="nav-search">
+      <select class="sc-cat">
+        <option>All Outlets</option>
+        <option>Canteen 1</option>
+        <option>Canteen 2</option>
+        <option>Cafeteria</option>
+        <option>Juice Point</option>
+      </select>
+      <input class="sc-inp" placeholder="Search biryani, momos, cold coffee...">
+      <button class="sc-btn"><i class="fas fa-search"></i></button>
+    </div>
+
+    <!-- Per-outlet cart buttons -->
+    <div class="nav-carts">
+      <a href="cart.html?outlet=c1" class="cart-btn">
+        <span class="cart-btn-dot" style="background:var(--c1)"></span>
+        <div class="cart-btn-info">
+          <span class="cart-btn-label">Canteen 1</span>
+          <span class="cart-btn-count">
+            <i class="fas fa-shopping-basket" style="font-size:11px"></i>
+            <span class="c-badge" id="b-c1">0</span>
+          </span>
+        </div>
+      </a>
+      <a href="cart.html?outlet=c2" class="cart-btn">
+        <span class="cart-btn-dot" style="background:var(--c2)"></span>
+        <div class="cart-btn-info">
+          <span class="cart-btn-label">Canteen 2</span>
+          <span class="cart-btn-count">
+            <i class="fas fa-shopping-basket" style="font-size:11px"></i>
+            <span class="c-badge" id="b-c2">0</span>
+          </span>
+        </div>
+      </a>
+      <a href="cart.html?outlet=cf" class="cart-btn">
+        <span class="cart-btn-dot" style="background:var(--cf)"></span>
+        <div class="cart-btn-info">
+          <span class="cart-btn-label">Cafeteria</span>
+          <span class="cart-btn-count">
+            <i class="fas fa-shopping-basket" style="font-size:11px"></i>
+            <span class="c-badge" id="b-cf">0</span>
+          </span>
+        </div>
+      </a>
+      <a href="cart.html?outlet=jp" class="cart-btn">
+        <span class="cart-btn-dot" style="background:var(--jp)"></span>
+        <div class="cart-btn-info">
+          <span class="cart-btn-label">Juice Point</span>
+          <span class="cart-btn-count">
+            <i class="fas fa-shopping-basket" style="font-size:11px"></i>
+            <span class="c-badge" id="b-jp">0</span>
+          </span>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Bottom strip -->
+  <div class="nav-bot">
+    <a href="#" class="nb on"><i class="fas fa-bars"></i> All</a>
+    <a href="outlet.html?id=1" class="nb">Canteen 1</a>
+    <a href="outlet.html?id=2" class="nb">Canteen 2</a>
+    <a href="outlet.html?id=3" class="nb">Cafeteria</a>
+    <a href="outlet.html?id=4" class="nb">Juice Point</a>
+    <a href="#cats" class="nb"><i class="fas fa-th"></i> Categories</a>
+    <a href="#popular" class="nb"><i class="fas fa-fire"></i> Popular</a>
+  </div>
+
+</nav>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║           HERO SLIDER                 ║
+     ╚═══════════════════════════════════════╝ -->
+<div class="hero">
+  <div class="hero-track" id="heroTrack">
+
+    <!-- Slide 1 — Canteen 1 -->
+    <div class="hero-slide s-c1">
+      <img class="hero-bg-img"
+        src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=1000&h=400&fit=crop&crop=center"
+        alt="Canteen 1">
+      <div class="hero-body">
+        <span class="hero-pill">🔥 Today's Special</span>
+        <h1 class="hero-h1">Canteen 1<br><em>Hot &amp; Fresh</em><br>Awaits You</h1>
+        <p class="hero-p">Pre-order your favourite meals. Skip the queue — walk in and collect at your chosen 10-minute slot.</p>
+        <button class="hero-cta" onclick="location.href='outlet.html?id=1'">
+          Order from Canteen 1 &nbsp;<i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Slide 2 — Canteen 2 -->
+    <div class="hero-slide s-c2">
+      <img class="hero-bg-img"
+        src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1000&h=400&fit=crop"
+        alt="Canteen 2">
+      <div class="hero-body">
+        <span class="hero-pill">⚡ Street Food Vibes</span>
+        <h1 class="hero-h1">Canteen 2<br><em>Best Burgers</em><br>&amp; More</h1>
+        <p class="hero-p">Sizzling burgers, steamed momos, crispy fries. Canteen 2 brings campus street food to your schedule.</p>
+        <button class="hero-cta" onclick="location.href='outlet.html?id=2'">
+          Order from Canteen 2 &nbsp;<i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Slide 3 — Cafeteria -->
+    <div class="hero-slide s-cf">
+      <img class="hero-bg-img"
+        src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1000&h=400&fit=crop"
+        alt="Cafeteria">
+      <div class="hero-body">
+        <span class="hero-pill">☕ All Day Drinks</span>
+        <h1 class="hero-h1">Cafeteria<br><em>Sip, Slurp</em><br>&amp; Chill</h1>
+        <p class="hero-p">15 beverages from cutting chai to thick shakes + 5 Maggi varieties. Your between-lecture fuel station.</p>
+        <button class="hero-cta" onclick="location.href='outlet.html?id=3'">
+          Order from Cafeteria &nbsp;<i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Slide 4 — Juice Point -->
+    <div class="hero-slide s-jp">
+      <img class="hero-bg-img"
+        src="https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=1000&h=400&fit=crop"
+        alt="Juice Point">
+      <div class="hero-body">
+        <span class="hero-pill">🌿 Pure &amp; Fresh</span>
+        <h1 class="hero-h1">Juice Point<br><em>Pure Fresh</em><br>Goodness</h1>
+        <p class="hero-p">Immunity shots to exotic fruit bowls. Your daily dose of freshness — 100% veg, zero preservatives.</p>
+        <button class="hero-cta" onclick="location.href='outlet.html?id=4'">
+          Order from Juice Point &nbsp;<i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+  </div><!-- end hero-track -->
+
+  <!-- Prev / Next arrows -->
+  <div class="hero-arrows">
+    <button class="h-arr" onclick="heroSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+    <button class="h-arr" onclick="heroSlide(1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+  <!-- Indicator dots -->
+  <div class="hero-dots" id="heroDots">
+    <button class="h-dot on" onclick="heroGoto(0)"></button>
+    <button class="h-dot" onclick="heroGoto(1)"></button>
+    <button class="h-dot" onclick="heroGoto(2)"></button>
+    <button class="h-dot" onclick="heroGoto(3)"></button>
+  </div>
+</div>
+
+
+<!-- ╔═══════════════════════════════════════╗
+     ║         BROWSE OUTLETS                ║
+     ╚═══════════════════════════════════════╝ -->
+<section class="sec" id="outlets">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title">🏪 Browse Outlets</div>
+      <a href="#" class="sec-link">View all →</a>
+    </div>
+    <div class="oc-grid">
+
+      <!-- Canteen 1 -->
+      <div class="oc" onclick="location.href='outlet.html?id=1'">
+        <div class="oc-img-wrap">
+          <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=228&fit=crop" alt="Canteen 1">
+          <div class="oc-img-overlay">
+            <div class="oc-img-name">Canteen 1</div>
+            <div class="oc-img-count">30 items · Meals, Snacks, Fast Food</div>
+          </div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-row">
+            <div class="oc-status"><span class="live-dot" style="background:#27ae60"></span> Open Now</div>
+            <div class="oc-timing"><i class="far fa-clock"></i> 8 AM – 5 PM</div>
+          </div>
+          <div class="oc-desc">Full meals, snacks and fast food. The most popular outlet on campus with 30 items.</div>
+          <div class="oc-tags">
+            <span class="oc-tag">Meals</span><span class="oc-tag">Snacks</span>
+            <span class="oc-tag">Fast Food</span><span class="oc-tag">Veg &amp; Non-Veg</span>
+          </div>
+          <button class="oc-btn" style="background:var(--c1l);color:var(--c1d)"
+            onmouseover="this.style.background='var(--c1)';this.style.color='#fff'"
+            onmouseout="this.style.background='var(--c1l)';this.style.color='var(--c1d)'">Explore Canteen 1 →</button>
+        </div>
+      </div>
+
+      <!-- Canteen 2 -->
+      <div class="oc" onclick="location.href='outlet.html?id=2'">
+        <div class="oc-img-wrap">
+          <img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=600&h=228&fit=crop" alt="Canteen 2">
+          <div class="oc-img-overlay">
+            <div class="oc-img-name">Canteen 2</div>
+            <div class="oc-img-count">20 items · Burgers, Momos, Meals</div>
+          </div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-row">
+            <div class="oc-status"><span class="live-dot" style="background:#27ae60"></span> Open Now</div>
+            <div class="oc-timing"><i class="far fa-clock"></i> 9 AM – 5 PM</div>
+          </div>
+          <div class="oc-desc">Street food favourites — momos, rolls, burgers. Always fresh, always fast.</div>
+          <div class="oc-tags">
+            <span class="oc-tag">Burgers</span><span class="oc-tag">Momos</span>
+            <span class="oc-tag">Meals</span><span class="oc-tag">Snacks</span>
+          </div>
+          <button class="oc-btn" style="background:var(--c2l);color:var(--c2d)"
+            onmouseover="this.style.background='var(--c2)';this.style.color='#fff'"
+            onmouseout="this.style.background='var(--c2l)';this.style.color='var(--c2d)'">Explore Canteen 2 →</button>
+        </div>
+      </div>
+
+      <!-- Cafeteria -->
+      <div class="oc" onclick="location.href='outlet.html?id=3'">
+        <div class="oc-img-wrap">
+          <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=600&h=228&fit=crop" alt="Cafeteria">
+          <div class="oc-img-overlay">
+            <div class="oc-img-name">Cafeteria</div>
+            <div class="oc-img-count">20 items · Drinks, Maggi, Shakes</div>
+          </div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-row">
+            <div class="oc-status"><span class="live-dot" style="background:#27ae60"></span> Open Now</div>
+            <div class="oc-timing"><i class="far fa-clock"></i> 8 AM – 6 PM</div>
+          </div>
+          <div class="oc-desc">15 beverages from cutting chai to thick shakes, plus 5 Maggi varieties.</div>
+          <div class="oc-tags">
+            <span class="oc-tag">Beverages</span><span class="oc-tag">Maggi</span>
+            <span class="oc-tag">Tea &amp; Coffee</span><span class="oc-tag">Shakes</span>
+          </div>
+          <button class="oc-btn" style="background:var(--cfl);color:var(--cfd)"
+            onmouseover="this.style.background='var(--cf)';this.style.color='#fff'"
+            onmouseout="this.style.background='var(--cfl)';this.style.color='var(--cfd)'">Explore Cafeteria →</button>
+        </div>
+      </div>
+
+      <!-- Juice Point -->
+      <div class="oc" onclick="location.href='outlet.html?id=4'">
+        <div class="oc-img-wrap">
+          <img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=600&h=228&fit=crop" alt="Juice Point">
+          <div class="oc-img-overlay">
+            <div class="oc-img-name">Juice Point</div>
+            <div class="oc-img-count">15 items · Juices, Smoothies, Bowls</div>
+          </div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-row">
+            <div class="oc-status"><span class="live-dot" style="background:#27ae60"></span> Open Now</div>
+            <div class="oc-timing"><i class="far fa-clock"></i> 8 AM – 5:30 PM</div>
+          </div>
+          <div class="oc-desc">100% fresh juices, smoothies, fruit bowls &amp; immunity shots. Pure veg, zero preservatives.</div>
+          <div class="oc-tags">
+            <span class="oc-tag">Fresh Juice</span><span class="oc-tag">Smoothies</span>
+            <span class="oc-tag">Fruit Bowls</span><span class="oc-tag">100% Veg</span>
+          </div>
+          <button class="oc-btn" style="background:var(--jpl);color:var(--jpd)"
+            onmouseover="this.style.background='var(--jp)';this.style.color='#fff'"
+            onmouseout="this.style.background='var(--jpl)';this.style.color='var(--jpd)'">Explore Juice Point →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║       BROWSE BY CATEGORY              ║
+     ╚═══════════════════════════════════════╝ -->
+<section class="sec" id="cats">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title">🗂️ Browse by Category</div>
+      <a href="#" class="sec-link">All categories →</a>
+    </div>
+    <div class="cat-grid">
+      <a href="outlet.html?cat=meals"       class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=136&h=136&fit=crop" alt="Meals"></div><div class="cat-nm">Meals</div><div class="cat-cnt">14 items</div></a>
+      <a href="outlet.html?cat=snacks"      class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?w=136&h=136&fit=crop" alt="Snacks"></div><div class="cat-nm">Snacks</div><div class="cat-cnt">18 items</div></a>
+      <a href="outlet.html?cat=fastfood"    class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=136&h=136&fit=crop" alt="Fast Food"></div><div class="cat-nm">Fast Food</div><div class="cat-cnt">18 items</div></a>
+      <a href="outlet.html?cat=beverages"   class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=136&h=136&fit=crop" alt="Beverages"></div><div class="cat-nm">Beverages</div><div class="cat-cnt">16 items</div></a>
+      <a href="outlet.html?cat=juice"       class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=136&h=136&fit=crop" alt="Fresh Juice"></div><div class="cat-nm">Fresh Juice</div><div class="cat-cnt">6 items</div></a>
+      <a href="outlet.html?cat=shakes"      class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=136&h=136&fit=crop" alt="Shakes"></div><div class="cat-nm">Shakes &amp; Smoothies</div><div class="cat-cnt">7 items</div></a>
+      <a href="outlet.html?cat=maggi"       class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=136&h=136&fit=crop" alt="Maggi"></div><div class="cat-nm">Maggi</div><div class="cat-cnt">5 items</div></a>
+      <a href="outlet.html?cat=fruitbowls"  class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=136&h=136&fit=crop" alt="Fruit Bowls"></div><div class="cat-nm">Fruit Bowls</div><div class="cat-cnt">3 items</div></a>
+      <a href="outlet.html?cat=shots"       class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=136&h=136&fit=crop" alt="Quick Shots"></div><div class="cat-nm">Quick Shots</div><div class="cat-cnt">2 items</div></a>
+      <a href="outlet.html?veg=1"           class="cat-card"><div class="cat-img"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=136&h=136&fit=crop" alt="Pure Veg"></div><div class="cat-nm">Pure Veg</div><div class="cat-cnt">70 items</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║         POPULAR ITEMS                 ║
+     ╚═══════════════════════════════════════╝ -->
+<section class="sec" id="popular">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div>
+        <div class="sec-title">🔥 Popular Right Now</div>
+        <div class="sec-sub">Most ordered items across all outlets today</div>
+      </div>
+      <a href="#" class="sec-link">See all items →</a>
+    </div>
+    <div class="pop-wrap">
+      <div class="pop-track">
+
+        <div class="pcard" onclick="addCart('Chicken Biryani','c1',150)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=356&h=280&fit=crop" alt="Biryani">
+            <span class="p-tag" style="background:var(--c1)">Canteen 1</span>
+            <div class="p-veg"><div class="vdot nv"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Chicken Biryani</div>
+            <div class="pcard-cat">Meals</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹150</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Chicken Biryani','c1',150)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Cold Coffee','cf',40)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=356&h=280&fit=crop" alt="Cold Coffee">
+            <span class="p-tag" style="background:var(--cf)">Cafeteria</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Cold Coffee</div>
+            <div class="pcard-cat">Beverages</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹40</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Cold Coffee','cf',40)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Veg Momos (6 pcs)','c2',50)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=356&h=280&fit=crop" alt="Momos">
+            <span class="p-tag" style="background:var(--c2)">Canteen 2</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Veg Momos (6 pcs)</div>
+            <div class="pcard-cat">Snacks</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹50</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Veg Momos (6 pcs)','c2',50)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Masala Dosa','c1',60)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=356&h=280&fit=crop" alt="Masala Dosa">
+            <span class="p-tag" style="background:var(--c1)">Canteen 1</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Masala Dosa</div>
+            <div class="pcard-cat">Meals</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹60</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Masala Dosa','c1',60)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Mango Banana Smoothie','jp',65)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1553530979-7ee527d49c0f?w=356&h=280&fit=crop" alt="Smoothie">
+            <span class="p-tag" style="background:var(--jp)">Juice Point</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Mango Banana Smoothie</div>
+            <div class="pcard-cat">Shakes / Smoothies</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹65</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Mango Banana Smoothie','jp',65)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Chicken Burger','c2',90)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=356&h=280&fit=crop" alt="Burger">
+            <span class="p-tag" style="background:var(--c2)">Canteen 2</span>
+            <div class="p-veg"><div class="vdot nv"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Chicken Burger</div>
+            <div class="pcard-cat">Fast Food</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹90</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Chicken Burger','c2',90)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Oreo Shake','cf',60)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=356&h=280&fit=crop" alt="Oreo Shake">
+            <span class="p-tag" style="background:var(--cf)">Cafeteria</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Oreo Shake</div>
+            <div class="pcard-cat">Beverages</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹60</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Oreo Shake','cf',60)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('Chicken Fried Rice','c1',110)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=356&h=280&fit=crop" alt="Fried Rice">
+            <span class="p-tag" style="background:var(--c1)">Canteen 1</span>
+            <div class="p-veg"><div class="vdot nv"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Chicken Fried Rice</div>
+            <div class="pcard-cat">Meals</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹110</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('Chicken Fried Rice','c1',110)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard" onclick="addCart('ABC Juice','jp',80)">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=356&h=280&fit=crop" alt="ABC Juice">
+            <span class="p-tag" style="background:var(--jp)">Juice Point</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">ABC Juice (Apple, Beet, Carrot)</div>
+            <div class="pcard-cat">Fresh Juice</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹80</div>
+              <button class="p-add" onclick="event.stopPropagation();addCart('ABC Juice','jp',80)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sold Out example -->
+        <div class="pcard">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1601050690597-df0568f70950?w=356&h=280&fit=crop" alt="Samosa">
+            <span class="p-tag" style="background:var(--c1)">Canteen 1</span>
+            <div class="p-veg"><div class="vdot v"></div></div>
+            <div class="sold-ov">Sold Out</div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-nm">Classic Samosa (2 pcs)</div>
+            <div class="pcard-cat">Snacks</div>
+            <div class="pcard-foot">
+              <div class="pcard-price">₹20</div>
+              <button class="p-add" disabled>+</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end pop-track -->
+    </div>
+  </div>
+</section>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║         HOW IT WORKS                  ║
+     ╚═══════════════════════════════════════╝ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="hiw">
+      <div class="hiw-step">
+        <img class="hiw-icon" src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=112&h=112&fit=crop" alt="Login">
+        <div class="hiw-ttl">1. Login</div>
+        <div class="hiw-desc">Sign in with your college ID and email to access the platform securely</div>
+      </div>
+      <div class="hiw-step">
+        <img class="hiw-icon" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=112&h=112&fit=crop" alt="Browse">
+        <div class="hiw-ttl">2. Browse &amp; Add</div>
+        <div class="hiw-desc">Pick items from any of the 4 outlets — each has its own separate cart</div>
+      </div>
+      <div class="hiw-step">
+        <img class="hiw-icon" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=112&h=112&fit=crop" alt="Pick Slot">
+        <div class="hiw-ttl">3. Pick a Slot</div>
+        <div class="hiw-desc">Choose a 10-minute pickup window — pay online via Razorpay to confirm</div>
+      </div>
+      <div class="hiw-step">
+        <img class="hiw-icon" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=112&h=112&fit=crop" alt="Collect">
+        <div class="hiw-ttl">4. Walk In &amp; Collect</div>
+        <div class="hiw-desc">Show your token number at the counter — zero waiting, zero queue</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║         QUICK REORDER                 ║
+     ╚═══════════════════════════════════════╝ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-hd">
+      <div>
+        <div class="sec-title">🔄 Order Again</div>
+        <div class="sec-sub">Your recent orders — reorder in one click</div>
+      </div>
+      <a href="login.html" class="sec-link">View all orders →</a>
+    </div>
+    <div class="reorder-body" id="reorderBody">
+  <div class="login-prompt">
+    <img class="lp-img" src="https://images.unsplash.com/photo-1543353071-873f17a7a088?w=160&h=160&fit=crop" alt="Login prompt">
+    <div class="lp-ttl">Login to see your previous orders</div>
+    <div class="lp-sub">Quick reorder feature unlocks after your very first order</div>
+    <a href="login.html" class="lp-btn">Login / Sign Up</a>
+  </div>
+</div>
+  </div>
+</section>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║           FOOTER                      ║
+     ╚═══════════════════════════════════════╝ -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div>
+        <div class="fb-logo">
+          <img class="fb-logo-img" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=68&h=68&fit=crop" alt="SC">
+          <span class="fb-brand">QueueBuster</span>
+        </div>
+        <div class="fb-desc">Pre-order your food online and skip the queue. Serving 4 outlets across campus — fresh, fast, zero wait, every time.</div>
+        <div class="fb-socials">
+          <div class="fb-soc"><i class="fab fa-instagram"></i></div>
+          <div class="fb-soc"><i class="fab fa-twitter"></i></div>
+          <div class="fb-soc"><i class="fab fa-whatsapp"></i></div>
+          <div class="fb-soc"><i class="fab fa-linkedin-in"></i></div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="fc">
+        <h4>Quick Links</h4>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login / Sign Up</a>
+        <a href="#popular">Popular Items</a>
+      </div>
+
+      <!-- Outlets -->
+      <div class="fc">
+        <h4>Outlets</h4>
+        <a href="outlet.html?id=1">Canteen 1</a>
+        <a href="outlet.html?id=2">Canteen 2</a>
+        <a href="outlet.html?id=3">Cafeteria</a>
+        <a href="outlet.html?id=4">Juice Point</a>
+      </div>
+
+      <!-- Timings -->
+      <div class="fc">
+        <h4>Outlet Timings</h4>
+        <div class="ft-item"><div class="ft-nm">Canteen 1</div><div class="ft-hr">8:00 AM – 5:00 PM</div></div>
+        <div class="ft-item"><div class="ft-nm">Canteen 2</div><div class="ft-hr">9:00 AM – 5:00 PM</div></div>
+        <div class="ft-item"><div class="ft-nm">Cafeteria</div><div class="ft-hr">8:00 AM – 6:00 PM</div></div>
+        <div class="ft-item"><div class="ft-nm">Juice Point</div><div class="ft-hr">8:00 AM – 5:30 PM</div></div>
+      </div>
+
+      <!-- Help -->
+      <div class="fc">
+        <h4>Help &amp; Support</h4>
+        <a href="#">How it Works</a>
+        <a href="#">Payment Issues</a>
+        <a href="#">Contact Us</a>
+        <a href="#">Feedback</a>
+        <a href="admin.html" style="color:rgba(255,255,255,.25);font-size:11px;margin-top:8px">Admin Login</a>
+      </div>
+
+    </div>
+  </div>
+  <div class="footer-bot">
+    <span>© 2026 QueueBuster · Campus Food. Zero Wait. Every Time.</span>
+    <div class="footer-bot-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast container -->
+<div id="toast-root"></div>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║           JAVASCRIPT                  ║
+     ╚═══════════════════════════════════════╝ -->
+<script>
+/* ── Hero Slider ── */
+let curSlide = 0;
+const TOTAL_SLIDES = 4;
+let autoTimer;
+
+function heroGoto(i) {
+  curSlide = i;
+  document.getElementById('heroTrack').style.transform = `translateX(-${i * 100}%)`;
+  document.querySelectorAll('.h-dot').forEach((d, j) => d.classList.toggle('on', j === i));
+}
+
+function heroSlide(dir) {
+  curSlide = (curSlide + dir + TOTAL_SLIDES) % TOTAL_SLIDES;
+  heroGoto(curSlide);
+  resetAuto();
+}
+
+function resetAuto() {
+  clearInterval(autoTimer);
+  autoTimer = setInterval(() => heroSlide(1), 5000);
+}
+
+resetAuto();
+
+/* ── Cart State — persisted to localStorage as qb_cart ── */
+const OUTLET_NAMES = { c1: 'Canteen 1', c2: 'Canteen 2', cf: 'Cafeteria', jp: 'Juice Point' };
+const BADGE_IDS    = { c1: 'b-c1', c2: 'b-c2', cf: 'b-cf', jp: 'b-jp' };
+
+function loadCart() {
+  try { return JSON.parse(localStorage.getItem('qb_cart') || '[]'); } catch(e) { return []; }
+}
+
+function saveCart(cart) {
+  localStorage.setItem('qb_cart', JSON.stringify(cart));
+}
+
+function addCart(name, outlet, price) {
+  const cart = loadCart();
+  const item = cart.find(i => i.name === name && i.outlet === outlet);
+  if (item) item.qty++;
+  else cart.push({ name, price, qty: 1, outlet });
+  saveCart(cart);
+  refreshBadges();
+  showToast(`<b>${name}</b> added to ${OUTLET_NAMES[outlet]} cart`, 's');
+}
+
+function refreshBadges() {
+  const cart = loadCart();
+  for (const outlet in OUTLET_NAMES) {
+    const total = cart.filter(i => i.outlet === outlet).reduce((s, i) => s + i.qty, 0);
+    const el = document.getElementById(BADGE_IDS[outlet]);
+    if (el) el.textContent = total;
+  }
+}
+
+// Load badges from existing cart on page load
+refreshBadges();
+
+/* ── Toast ── */
+function showToast(msg, type = '') {
+  const root = document.getElementById('toast-root');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  const icon = type === 's' ? '✅' : type === 'e' ? '❌' : 'ℹ️';
+  t.innerHTML = `<span style="font-size:18px">${icon}</span><span class="toast-msg">${msg}</span>`;
+  root.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'all .3s';
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(8px)';
+    setTimeout(() => t.remove(), 320);
+  }, 2800);
+}
+/* ── Order History ── */
+(async function loadOrderHistory() {
+  const token = localStorage.getItem('qb_token');
+  const body  = document.getElementById('reorderBody');
+  if (!token || !body) return;
+
+  body.innerHTML = '<div class="oh-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading your orders...</div>';
+
+  const OUTLET_NAMES = { 1:'Canteen 1', 2:'Canteen 2', 3:'Cafeteria', 4:'Juice Point' };
+  const STATUS_LABEL = { pending:'⏳ Pending', preparing:'👨‍🍳 Preparing', ready:'✅ Ready', collected:'📦 Collected', cancelled:'❌ Cancelled' };
+
+  try {
+    const res  = await fetch('http://localhost:3000/api/orders/my-orders', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (!data.success || !data.orders.length) {
+      body.innerHTML = '<div class="oh-loading">No orders yet — place your first order!</div>';
+      return;
+    }
+
+    body.innerHTML = data.orders.map(o => {
+      const tokens   = (o.tokens || '').split(',').filter(Boolean);
+      const isCollected = o.status === 'collected';
+      const tokenHtml = tokens.map(t =>
+        `<span class="oh-token ${isCollected ? 'done' : ''}">#${t}</span>`
+      ).join('');
+
+      const [hh, mm] = (o.slot || '00:00').split(':').map(Number);
+      const dh  = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+      const suf = hh < 12 ? 'AM' : 'PM';
+      const slotFmt = `${dh}:${String(mm).padStart(2,'0')} ${suf}`;
+
+      return `
+      <div class="oh-card ${isCollected ? 'collected' : ''}" id="ohcard-${o.order_code}">
+        <div class="oh-top">
+          <span class="oh-id">${o.order_code}</span>
+          <span class="oh-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+        </div>
+        <div class="oh-items">${OUTLET_NAMES[o.outlet_id] || ''} · Slot ${slotFmt} · ${o.items_summary}</div>
+        <div class="oh-tokens">${tokenHtml}</div>
+        <div class="oh-foot">
+          <span>${new Date(o.placed_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+          <span class="oh-total">₹${o.total}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    body.innerHTML = '<div class="oh-loading">Could not load orders. Is the server running?</div>';
+  }
+})();
+</script>
+</body>
+</html>
