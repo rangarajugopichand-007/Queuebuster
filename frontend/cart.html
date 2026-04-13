@@ -644,7 +644,7 @@ input,select,textarea{font-family:inherit;outline:none}
      3. All fetch() calls below are already wired up
 ════════════════════════════════════════════════════ */
 const DEMO_MODE = false;
-const API_BASE  = 'https://queuebuster-py6u.onrender.com';
+const API_BASE  = 'http://localhost:3000';
 
 /* ════════════════════════════════════════════════════
    OUTLET REFERENCE TABLE
@@ -1157,7 +1157,7 @@ function showConfirmScreen(orderId, tokens, total) {
   sendOrderEmail(orderId, tokens, total, fmt, O.name);
   // ── Real-time: listen for status update on this order ──
   try {
-    const socket = io('https://queuebuster-py6u.onrender.com');
+    const socket = io('http://localhost:3000');
     socket.emit('join_order', orderId);
 
     socket.on('status_update', ({ status }) => {

@@ -522,7 +522,7 @@ tr:hover td{background:#fafafa}
   .content{padding:12px}
 }
 </style>
-<script src="https://queuebuster-py6u.onrender.com/socket.io/socket.io.js"></script>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -815,7 +815,7 @@ tr:hover td{background:#fafafa}
 /* ─────────────────────────────
    DATA
 ───────────────────────────── */
-const API_BASE = 'https://queuebuster-py6u.onrender.com';
+const API_BASE = 'http://localhost:3000';
 const OUTLET_INFO = {
   0:{name:'All Outlets',  color:'var(--pri)',   colorL:'#e8f0eb'},
   1:{name:'Canteen 1',    color:'var(--c1)',    colorL:'var(--c1l)'},
@@ -1528,7 +1528,7 @@ async function apiFetch(path, method = 'GET', body = null){
    INIT
 ───────────────────────────── */
 // ── Socket.io — real-time order updates ──
-const socket = io('https://queuebuster-py6u.onrender.com');
+const socket = io('http://localhost:3000');
 
 socket.on('connect', () => {
   const outlet = localStorage.getItem('qb_admin_outlet') || 1;
