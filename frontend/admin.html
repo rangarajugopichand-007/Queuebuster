@@ -1051,21 +1051,44 @@ async function loadOrdersFromAPI(){
     const data = await apiFetch(`/api/orders/live/${currentOutlet}`);
     if (!data.success || !Array.isArray(data.orders)) return;
 
-    ORDERS_DATA = data.orders.map((o, idx) => {
-      const token = String(o.token_number || idx + 1);
-      return {
-        token,
-        id: o.order_code,
+    ORDERS_DATA = [];
+data.orders.forEach((o) => {
+  const itemTokens = (o.token_numbers || '').toString().split(',').filter(Boolean);
+  const itemNames  = (o.items_summary || '').split(',').filter(Boolean);
+
+  if (itemTokens.length > 1) {
+    // Multiple items — one row per item with its own token
+    itemTokens.forEach((tok, i) => {
+      const itemPart = (itemNames[i] || '').trim();
+      ORDERS_DATA.push({
+        token:   tok.trim(),
+        id:      o.order_code,
         student: o.student,
-        rollNo: o.rollNo,
-        items: parseItemsSummary(o.items_summary),
-        total: Number(o.total || 0),
-        slot: o.slot,
-        time: formatOrderTime(o.placed_at),
-        status: o.status,
-        outlet: currentOutlet,
-      };
+        rollNo:  o.rollNo,
+        items:   parseItemsSummary(itemPart),
+        total:   i === 0 ? Number(o.total || 0) : 0,
+        slot:    o.slot,
+        time:    formatOrderTime(o.placed_at),
+        status:  o.status,
+        outlet:  currentOutlet,
+      });
     });
+  } else {
+    // Single item order
+    ORDERS_DATA.push({
+      token:   String(o.token_number || itemTokens[0] || '?'),
+      id:      o.order_code,
+      student: o.student,
+      rollNo:  o.rollNo,
+      items:   parseItemsSummary(o.items_summary),
+      total:   Number(o.total || 0),
+      slot:    o.slot,
+      time:    formatOrderTime(o.placed_at),
+      status:  o.status,
+      outlet:  currentOutlet,
+    });
+  }
+});
 
     renderOrdersTable(orderFilter || 'all');
   } catch (err) {
@@ -1539,11 +1562,8 @@ socket.on('connect', () => {
 // New order arrives — add to top of orders table
 socket.on('new_order', (order) => {
   showToast(`🆕 New order from ${order.student} — Token #${order.tokens?.[0]?.token}`, 's');
-  // Refresh orders table
-  renderOrdersTable(orderFilter || 'all');
-  // Update live badge count
-  const lcEl = document.getElementById('liveCount');
-  if (lcEl) lcEl.textContent = parseInt(lcEl.textContent || 0) + 1;
+  // Fetch fresh data from API then render
+  loadOrdersFromAPI();
 });
 
 // Order status changed by another admin tab

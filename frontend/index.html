@@ -769,6 +769,38 @@ input,select{font-family:inherit}
 .oh-foot{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
 .oh-total{font-weight:800;color:var(--txt);font-size:14px}
 .oh-loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+
+/* ── ORDER DETAIL MODAL ── */
+.od-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.od-backdrop.on{display:flex}
+.od-modal{background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.od-top{background:linear-gradient(135deg,#092b1f,#1a5c43);padding:28px 24px 22px;text-align:center}
+.od-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.od-sub{font-size:13px;color:rgba(255,255,255,.65)}
+.od-status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;font-size:12px;font-weight:800;margin-top:12px;text-transform:uppercase;letter-spacing:.5px}
+.od-status-pill.pending{background:#fff8ec;color:#d4891a}
+.od-status-pill.preparing{background:#eaf4fc;color:#2471a3}
+.od-status-pill.ready{background:#eafaf1;color:#1e8449}
+.od-status-pill.completed{background:#f0f0f0;color:#888}
+.od-status-pill.cancelled{background:#fdf5f5;color:#c0392b}
+.od-body{padding:20px 22px}
+.od-tokens{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;justify-content:center}
+.od-token-card{background:linear-gradient(135deg,#092b1f,#1a5c43);border-radius:10px;padding:12px 16px;text-align:center;border:2px solid rgba(245,166,35,.3);min-width:100px}
+.od-token-card.done{background:linear-gradient(135deg,#666,#888);border-color:#aaa;opacity:.65}
+.od-tc-lbl{font-size:9px;color:rgba(255,255,255,.55);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.od-tc-num{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#f5a623;line-height:1}
+.od-tc-item{font-size:10px;color:rgba(255,255,255,.65);margin-top:4px}
+.od-tc-num.done{color:#ccc;text-decoration:line-through}
+.od-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.od-cell{background:#f8f9fa;border-radius:8px;padding:10px 12px;border:1px solid #eee}
+.od-cell-lbl{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.od-cell-val{font-size:13px;font-weight:700;color:#111}
+.od-items-lbl{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.od-item-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 0;border-bottom:1px solid #f0f0f0}
+.od-item-row:last-child{border-bottom:none}
+.od-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding-top:10px;margin-top:6px;border-top:2px solid #eee}
+.od-close-btn{width:100%;height:44px;background:#0f3d2e;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;transition:.2s}
+.od-close-btn:hover{background:#1a5c43}
 </style>
 </head>
 <body>
@@ -1389,6 +1421,28 @@ input,select{font-family:inherit}
   </div>
 </footer>
 
+<!-- ── ORDER DETAIL MODAL ── -->
+<div class="od-backdrop" id="odBackdrop" onclick="if(event.target===this)closeOrderModal()">
+  <div class="od-modal">
+    <div class="od-top">
+      <div class="od-title">Order Details</div>
+      <div class="od-sub" id="odOrderId"></div>
+      <div id="odStatusPill"></div>
+    </div>
+    <div class="od-body">
+      <div class="od-tokens" id="odTokens"></div>
+      <div class="od-grid" id="odGrid"></div>
+      <div class="od-items-lbl">Items Ordered</div>
+      <div id="odItems"></div>
+      <div class="od-total-row">
+        <span>Total Paid</span>
+        <span id="odTotal" style="color:#c0392b"></span>
+      </div>
+      <button class="od-close-btn" onclick="closeOrderModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div id="toast-root"></div>
 
@@ -1481,7 +1535,7 @@ function showToast(msg, type = '') {
   const STATUS_LABEL = { pending:'⏳ Pending', preparing:'👨‍🍳 Preparing', ready:'✅ Ready', collected:'📦 Collected', cancelled:'❌ Cancelled' };
 
   try {
-    const res  = await fetch('https://queuebuster-py6u.onrender.com/api/orders/my-orders', {
+    const res  = await fetch('http://localhost:3000/api/orders/my-orders', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();
@@ -1504,7 +1558,7 @@ function showToast(msg, type = '') {
       const slotFmt = `${dh}:${String(mm).padStart(2,'0')} ${suf}`;
 
       return `
-      <div class="oh-card ${isCollected ? 'collected' : ''}" id="ohcard-${o.order_code}">
+      <div class="oh-card ${isCollected ? 'collected' : ''}" id="ohcard-${o.order_code}" onclick="openOrderModal(${JSON.stringify(o).replace(/"/g, '&quot;')})" style="cursor:pointer">
         <div class="oh-top">
           <span class="oh-id">${o.order_code}</span>
           <span class="oh-status ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
@@ -1522,6 +1576,61 @@ function showToast(msg, type = '') {
     body.innerHTML = '<div class="oh-loading">Could not load orders. Is the server running?</div>';
   }
 })();
+
+/* ── Order Detail Modal ── */
+function openOrderModal(o) {
+  const STATUS_LABEL = { pending:'⏳ Pending', preparing:'👨‍🍳 Preparing', ready:'✅ Ready', completed:'📦 Collected', cancelled:'❌ Cancelled' };
+  const OUTLET_NAMES = { 1:'Canteen 1', 2:'Canteen 2', 3:'Cafeteria', 4:'Juice Point' };
+
+  document.getElementById('odOrderId').textContent = o.order_code;
+
+  // Status pill
+  const status = o.status || 'pending';
+  document.getElementById('odStatusPill').innerHTML =
+    `<span class="od-status-pill ${status}">${STATUS_LABEL[status] || status}</span>`;
+
+  // Token cards
+  const tokens = (o.tokens || '').toString().split(',').filter(Boolean);
+  const items  = (o.items_summary || '').split(',').filter(Boolean);
+  const isCollected = status === 'completed' || status === 'collected';
+  document.getElementById('odTokens').innerHTML = tokens.map((tok, i) =>
+    `<div class="od-token-card ${isCollected ? 'done' : ''}">
+       <div class="od-tc-lbl">Token</div>
+       <div class="od-tc-num ${isCollected ? 'done' : ''}">#${tok.trim()}</div>
+       <div class="od-tc-item">${(items[i] || '').trim().split(' x')[0] || ''}</div>
+     </div>`
+  ).join('');
+
+  // Info grid
+  const [hh, mm] = (o.slot || '00:00').split(':').map(Number);
+  const dh  = hh > 12 ? hh - 12 : (hh === 0 ? 12 : hh);
+  const suf = hh < 12 ? 'AM' : 'PM';
+  const slotFmt = `${dh}:${String(mm).padStart(2,'0')} ${suf}`;
+  document.getElementById('odGrid').innerHTML = `
+    <div class="od-cell"><div class="od-cell-lbl">Outlet</div><div class="od-cell-val">${OUTLET_NAMES[o.outlet_id] || ''}</div></div>
+    <div class="od-cell"><div class="od-cell-lbl">Pickup Slot</div><div class="od-cell-val" style="color:#0f3d2e">${slotFmt}</div></div>
+    <div class="od-cell"><div class="od-cell-lbl">Date</div><div class="od-cell-val">${new Date(o.placed_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+    <div class="od-cell"><div class="od-cell-lbl">Payment</div><div class="od-cell-val" style="color:#27ae60">✓ Paid</div></div>`;
+
+  // Items list
+  document.getElementById('odItems').innerHTML = items.map(item => {
+    const parts = item.trim().split(' x');
+    const name  = parts[0] || item;
+    const qty   = parts[1] || '1';
+    return `<div class="od-item-row"><span>${name} <span style="color:#888">×${qty}</span></span></div>`;
+  }).join('');
+
+  // Total
+  document.getElementById('odTotal').textContent = `₹${o.total}`;
+
+  // Show modal
+  document.getElementById('odBackdrop').classList.add('on');
+}
+
+function closeOrderModal() {
+  document.getElementById('odBackdrop').classList.remove('on');
+}
+
 </script>
 </body>
 </html>

@@ -10,7 +10,8 @@ router.get('/live/:outletId', verifyToken, async (req, res) => {
     const [orders] = await db.execute(
       `SELECT o.id, o.order_code, o.slot, o.total, o.status, o.placed_at,
               u.name as student, u.college_id as rollNo,
-              GROUP_CONCAT(oi.item_name, ' x', oi.qty SEPARATOR ', ') as items_summary,
+              GROUP_CONCAT(oi.item_name, ' x', oi.qty ORDER BY oi.id SEPARATOR ',') as items_summary,
+GROUP_CONCAT(oi.token_number ORDER BY oi.id SEPARATOR ',') as token_numbers,
 MIN(oi.token_number) as token_number
        FROM orders o
        JOIN users u ON o.user_id = u.id
